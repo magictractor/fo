@@ -22,9 +22,6 @@ import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.Test;
 
-import uk.co.magictractor.fo.FoDocument;
-import uk.co.magictractor.fo.FoDocumentBuilder;
-
 public class FoDocumentBuilderTest {
 
     @Test
@@ -137,7 +134,6 @@ public class FoDocumentBuilderTest {
 
     @Test
     public void testMetadataCustomPropertyDate() {
-        ZonedDateTime now = ZonedDateTime.now();
         FoDocument doc = new FoDocumentBuilder()
                 .withMetadataCustomProperty("KEY1", "VALUE1")
                 .withMetadataCustomProperty("KEY2", "VALUE2")

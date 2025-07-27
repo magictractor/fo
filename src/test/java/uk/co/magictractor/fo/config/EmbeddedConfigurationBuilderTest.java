@@ -24,8 +24,6 @@ import java.io.UncheckedIOException;
 import org.apache.fop.configuration.DefaultConfiguration;
 import org.junit.jupiter.api.Test;
 
-import uk.co.magictractor.fo.config.EmbeddedConfigurationBuilder;
-
 /**
  *
  */

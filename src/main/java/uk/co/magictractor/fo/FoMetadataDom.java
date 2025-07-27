@@ -197,7 +197,7 @@ public class FoMetadataDom implements FoMetadata {
 
     private String getRdfDescriptionString(QName qName) {
         ensureRdfDescription(false);
-        if (rdfDescription.isEmpty()) {
+        if (!rdfDescription.isPresent()) {
             return null;
         }
 
@@ -229,7 +229,7 @@ public class FoMetadataDom implements FoMetadata {
     //       <rdf:Description>
     //         <dc:title>TITLE</dc:title>
     private void ensureRdfDescription(boolean create) {
-        if (create && (rdfDescription == null || rdfDescription.isEmpty())) {
+        if (create && (rdfDescription == null || !rdfDescription.isPresent())) {
             Element declarations = DomUtil.findOrCreateFoDeclarations(domDocument, createdElementCallback);
             Element xmpmeta = DomUtil.findOrCreateChild(declarations, Namespace.X.qName("xmpmeta"), createdElementCallback);
             Element rdf = DomUtil.findOrCreateChild(xmpmeta, Namespace.RDF.qName("RDF"), createdElementCallback);
@@ -261,7 +261,7 @@ public class FoMetadataDom implements FoMetadata {
     @Override
     public String getCustomProperty(String key) {
         ensureFoxInfo(false);
-        if (foxInfo.isEmpty()) {
+        if (!foxInfo.isPresent()) {
             return null;
         }
 
@@ -277,7 +277,7 @@ public class FoMetadataDom implements FoMetadata {
     }
 
     private void ensureFoxInfo(boolean create) {
-        if (create && (foxInfo == null || foxInfo.isEmpty())) {
+        if (create && (foxInfo == null || !foxInfo.isPresent())) {
             Element root = (Element) domDocument.getFirstChild();
             Element declarations = DomUtil.findOrCreateChild(root, Namespace.FO.qName("declarations"), createdElementCallback);
             foxInfo = Optional.of(DomUtil.findOrCreateChild(declarations, Namespace.FOX.qName("info"), createdElementCallback));

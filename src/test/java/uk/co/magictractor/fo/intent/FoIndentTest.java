@@ -55,33 +55,27 @@ public class FoIndentTest {
 
     @Test
     public void testInfer_child4spaces() throws Exception {
-        String xml = """
-<parent>
-    <child/>
-</parent>
-""";
+        String xml = "<parent>\n" +
+                "    <child/>\n" +
+                "</parent>\n";
 
         checkInfer(xml, ' ', 4);
     }
 
     @Test
     public void testInfer_child2spaces() throws Exception {
-        String xml = """
-    <parent>
-      <child/>
-    </parent>
-""";
+        String xml = "<parent>\n" +
+                "  <child/>\n" +
+                "</parent>\n";
 
         checkInfer(xml, ' ', 2);
     }
 
     @Test
     public void testInfer_child1tab() throws Exception {
-        String xml = """
-<parent>
-\t<child/>
-</parent>
-""";
+        String xml = "<parent>\n" +
+                "\t<child/>\n" +
+                "</parent>\n";
 
         checkInfer(xml, '\t', 1);
     }
@@ -95,7 +89,8 @@ public class FoIndentTest {
 
     private Document parse(String xml) throws SAXException, IOException, ParserConfigurationException {
         try (InputStream in = new ReaderInputStream(new StringReader(xml), StandardCharsets.US_ASCII)) {
-            return DocumentBuilderFactory.newDefaultNSInstance().newDocumentBuilder().parse(in);
+            return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
+            // return DocumentBuilderFactory.newDefaultNSInstance().newDocumentBuilder().parse(in);
         }
     }
 

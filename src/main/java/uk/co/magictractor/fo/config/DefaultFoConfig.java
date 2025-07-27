@@ -58,7 +58,8 @@ public class DefaultFoConfig implements FoConfig {
     @Override
     public Transformer getTransformer() {
         try {
-            return TransformerFactory.newDefaultInstance().newTransformer();
+            return TransformerFactory.newInstance().newTransformer();
+            // return TransformerFactory.newDefaultInstance().newTransformer();
         }
         catch (TransformerConfigurationException e) {
             throw new IllegalStateException(e);

@@ -21,6 +21,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import com.google.common.io.ByteStreams;
 
 /**
  *
@@ -32,7 +35,7 @@ public class DocIO {
 
     public DocIO(String fileNameBase) {
         // TODO! something more robust (optional environment variable?)
-        this(Path.of(System.getProperty("user.dir"), "docs"), fileNameBase);
+        this(Paths.get(System.getProperty("user.dir"), "docs"), fileNameBase);
     }
 
     public DocIO(Path dir, String fileNameBase) {
@@ -73,7 +76,7 @@ public class DocIO {
 
     public void transferTo(ByteArrayInputStream in, String fileNameExtension) throws IOException {
         try (OutputStream out = newOutputStream(fileNameExtension)) {
-            in.transferTo(out);
+            ByteStreams.copy(in, out);
         }
     }
 

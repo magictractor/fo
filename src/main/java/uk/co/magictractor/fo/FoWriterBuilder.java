@@ -15,29 +15,17 @@
  */
 package uk.co.magictractor.fo;
 
-import java.awt.Dimension;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import javax.xml.transform.Result;
-
-import org.apache.fop.accessibility.StructureTreeEventHandler;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.event.LoggingEventListener;
 import org.apache.fop.events.Event;
 import org.apache.fop.events.EventListener;
-import org.apache.fop.fonts.FontInfo;
-import org.apache.fop.render.intermediate.IFContext;
-import org.apache.fop.render.intermediate.IFDocumentHandler;
-import org.apache.fop.render.intermediate.IFDocumentHandlerConfigurator;
-import org.apache.fop.render.intermediate.IFDocumentNavigationHandler;
-import org.apache.fop.render.intermediate.IFException;
-import org.apache.fop.render.intermediate.IFPainter;
 import org.xml.sax.ContentHandler;
 
 import uk.co.magictractor.fo.config.DefaultFoConfig;
@@ -217,7 +205,14 @@ public class FoWriterBuilder {
         return transformInfo.foTransform.createHandler(out, foConfig.getFopFactory(), userAgent);
     }
 
-    private static record TransformInfo(FoTransform foTransform, FoTransformOutputStreamFunction outputStreamFunction) {
+    private static class TransformInfo {
+        private final FoTransform foTransform;
+        private final FoTransformOutputStreamFunction outputStreamFunction;
+
+        private TransformInfo(FoTransform foTransform, FoTransformOutputStreamFunction outputStreamFunction) {
+            this.foTransform = foTransform;
+            this.outputStreamFunction = outputStreamFunction;
+        }
     }
 
 }

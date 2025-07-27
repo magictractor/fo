@@ -33,8 +33,9 @@ public class FoPassthroughHandler implements BlankContentHandler, BlankLexicalHa
         this.writer = new OutputStreamWriter(new BufferedOutputStream(outputStream));
     }
 
+    // TODO! commented out @Override when switching to Java 8. Investigate and maybe tidy.
     // <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-    @Override
+    // @Override
     public void declaration(String version, String encoding, String standalone)
             throws SAXException {
 

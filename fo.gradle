@@ -59,9 +59,9 @@ test {
 }
 
 java {
-    // TODO! roll java version back to minimum supported by Apache FOP
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    // Restricted to Java 8 to match Apache FOP.
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
     
     withSourcesJar()
     //withJavadocJar()
@@ -83,8 +83,6 @@ dependencies {
     // Logger implementation for unit tests and main() methods.
     runtimeOnly libs.logback.classic
 
-    // MoreObjects is used for toString() implementations
-    // Strings.padStart() is used when converting RGB to hex.
     implementation libs.guava
     
     implementation("org.apache.xmlgraphics:fop-core:2.10")  {
@@ -97,5 +95,6 @@ dependencies {
     testImplementation libs.junit.jupiter;
     testRuntimeOnly libs.junit.jupiter.platform;
     testImplementation libs.assertj;
-    testImplementation("org.mockito:mockito-core:5.12.0")
+    // Mockito 4 for Java 8. See https://github.com/mockito/mockito/issues/2997.
+    testImplementation("org.mockito:mockito-core:4.11.0")
 }

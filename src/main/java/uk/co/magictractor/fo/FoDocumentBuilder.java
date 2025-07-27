@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -53,22 +54,32 @@ public class FoDocumentBuilder {
     //    h4_font_size: $base_font_size
     //    h5_font_size: $base_font_size_small
     //    h6_font_size: $base_font_size_min
-    private static final Map<String, ElementModifier> DEFAULT_ELEMENT_MODIFIER = Map.of(
-        // space-after works here
-        // maybe useful:
-        // page-break-inside="avoid"
-        // page-break-before="always" (also left/right)
-        // keep and break: https://www.w3.org/TR/xsl11/#d0e26492
-        // linefeed-treatment="preserve"
-        // Spec for Spaces and Conditionality
-        // https://www.w3.org/TR/xsl11/#spacecond
-        "p", attributeSetter("space-after", "8pt"),
-        "h1", attributeSetter("font-weight", "bold", "font-size", "150%", "keep-with-next", "always", "space-before", "20mm", "space-after", "12pt"),
-        "h2", attributeSetter("font-weight", "bold", "font-size", "130%", "keep-with-next", "always", "space-after", "10pt"),
-        "h3", attributeSetter("font-weight", "bold", "font-size", "115.5%", "keep-with-next", "always", "space-after", "5pt"),
-        "h4", attributeSetter("font-weight", "bold", "keep-with-next", "always", "space-after", "3pt"),
-        "h5", attributeSetter("font-weight", "bold", "font-size", "90%", "keep-with-next", "always"),
-        "h6", attributeSetter("font-weight", "bold", "font-size", "80%", "keep-with-next", "always"));
+    private static final Map<String, ElementModifier> DEFAULT_ELEMENT_MODIFIER = new HashMap<>();
+    //            Map.of(
+    //        // space-after works here
+    //        // maybe useful:
+    //        // page-break-inside="avoid"
+    //        // page-break-before="always" (also left/right)
+    //        // keep and break: https://www.w3.org/TR/xsl11/#d0e26492
+    //        // linefeed-treatment="preserve"
+    //        // Spec for Spaces and Conditionality
+    //        // https://www.w3.org/TR/xsl11/#spacecond
+    //        "p", attributeSetter("space-after", "8pt"),
+    //        "h1", attributeSetter("font-weight", "bold", "font-size", "150%", "keep-with-next", "always", "space-before", "20mm", "space-after", "12pt"),
+    //        "h2", attributeSetter("font-weight", "bold", "font-size", "130%", "keep-with-next", "always", "space-after", "10pt"),
+    //        "h3", attributeSetter("font-weight", "bold", "font-size", "115.5%", "keep-with-next", "always", "space-after", "5pt"),
+    //        "h4", attributeSetter("font-weight", "bold", "keep-with-next", "always", "space-after", "3pt"),
+    //        "h5", attributeSetter("font-weight", "bold", "font-size", "90%", "keep-with-next", "always"),
+    //        "h6", attributeSetter("font-weight", "bold", "font-size", "80%", "keep-with-next", "always"));
+    static {
+        DEFAULT_ELEMENT_MODIFIER.put("p", attributeSetter("space-after", "8pt"));
+        DEFAULT_ELEMENT_MODIFIER.put("h1", attributeSetter("font-weight", "bold", "font-size", "150%", "keep-with-next", "always", "space-before", "20mm", "space-after", "12pt"));
+        DEFAULT_ELEMENT_MODIFIER.put("h2", attributeSetter("font-weight", "bold", "font-size", "130%", "keep-with-next", "always", "space-after", "10pt"));
+        DEFAULT_ELEMENT_MODIFIER.put("h3", attributeSetter("font-weight", "bold", "font-size", "115.5%", "keep-with-next", "always", "space-after", "5pt"));
+        DEFAULT_ELEMENT_MODIFIER.put("h4", attributeSetter("font-weight", "bold", "keep-with-next", "always", "space-after", "3pt"));
+        DEFAULT_ELEMENT_MODIFIER.put("h5", attributeSetter("font-weight", "bold", "font-size", "90%", "keep-with-next", "always"));
+        DEFAULT_ELEMENT_MODIFIER.put("h6", attributeSetter("font-weight", "bold", "font-size", "80%", "keep-with-next", "always"));
+    }
 
     private Function<Document, Element> bodyFunction;
 

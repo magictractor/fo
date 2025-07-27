@@ -19,9 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import uk.co.magictractor.fo.DomUtil;
-import uk.co.magictractor.fo.Namespace;
-
 public class DomUtilTest {
 
     @Test
@@ -32,29 +29,21 @@ public class DomUtilTest {
         DomUtil.findChild(root, Namespace.FO.qName("declarations"));
     }
 
-    // <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format"/>
-    private Document createMinimalDocument() {
-        return DomUtil.parseXml("""
-<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
-</fo:root>
-                   """);
-    }
-
     private Document createMetadataDocument() {
-        return DomUtil.parseXml("""
-<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
-  <fo:declarations xmlns:x="adobe:ns:meta/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"  xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xmp="http://ns.adobe.com/xap/1.0/"  xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
-    <x:xmpmeta>
-      <rdf:RDF>
-        <rdf:Description>
-          <dc:title>TITLE</dc:title>
-          <xmp:Keywords>KEYWORDS</xmp:Keywords>
-        </rdf:Description>
-      </rdf:RDF>
-    </x:xmpmeta>
-  </fo:declarations>
-</fo:root>
-                   """);
+        return DomUtil.parseXml(
+            "<fo:root xmlns:fo=\"http://www.w3.org/1999/XSL/Format\">" +
+                    "<fo:declarations xmlns:x=\"adobe:ns:meta/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"  xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\"  xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\">"
+                    +
+                    "<x:xmpmeta>" +
+                    "<rdf:RDF>" +
+                    "<rdf:Description>" +
+                    "<dc:title>TITLE</dc:title>" +
+                    "<xmp:Keywords>KEYWORDS</xmp:Keywords>" +
+                    "</rdf:Description>" +
+                    "</rdf:RDF>" +
+                    "</x:xmpmeta>" +
+                    "</fo:declarations>" +
+                    "</fo:root>");
     }
 
 }

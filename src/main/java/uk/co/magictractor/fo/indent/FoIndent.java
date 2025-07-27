@@ -92,7 +92,9 @@ public interface FoIndent {
     //        // For now max=1 is enough. Might change if we start nesting more, maybe with fo:block-container.
     //        initIndentMax(bodyIndent.charAt(0), elementStack.depth() + 4);
 
-    private static FoIndent infer(Element element) {
+    // TODO! move the infer() methods
+    // this was private until modifying the code to run on older JDKs.
+    public static FoIndent infer(Element element) {
         Node outerIndentNode;
         Node innerIndentNode;
 

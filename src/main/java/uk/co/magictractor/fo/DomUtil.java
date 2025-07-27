@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -209,7 +210,23 @@ public final class DomUtil {
         if (in == null) {
             throw new IllegalArgumentException("InputStream must not be null");
         }
-        return parseDocumentSupplier(() -> DocumentBuilderFactory.newDefaultNSInstance().newDocumentBuilder().parse(in));
+        // TODO! cache the builder
+        DocumentBuilder builder;
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            builder = factory.newDocumentBuilder();
+        }
+        catch (ParserConfigurationException e) {
+            throw new IllegalStateException(e);
+        }
+        if (!builder.isNamespaceAware()) {
+            throw new IllegalStateException("DocumentBuilder must be namespace aware");
+        }
+        return parseDocumentSupplier(() -> builder.parse(in));
+
+        // return parseDocumentSupplier(() -> DocumentBuilderFactory.newDefaultNSInstance().newDocumentBuilder().parse(in));
+        //return parseDocumentSupplier(() -> DocumentBuilderFactory.newInstance().setNamespaceAware(true).newDocumentBuilder().parse(in));
     }
 
     private static Document parseDocumentSupplier(DocumentSupplier supplier) {

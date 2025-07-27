@@ -23,9 +23,6 @@ import org.mockito.Mockito;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.ext.LexicalHandler;
 
-import uk.co.magictractor.fo.handler.ContentHandlerBroadcast;
-import uk.co.magictractor.fo.handler.HasLexicalHandler;
-import uk.co.magictractor.fo.handler.LexicalHandlerBroadcast;
 import uk.co.magictractor.fo.mockito.ContentAndLexicalHandler;
 import uk.co.magictractor.fo.mockito.MockitoExtension;
 

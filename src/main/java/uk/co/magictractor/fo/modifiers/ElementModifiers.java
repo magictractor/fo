@@ -41,11 +41,14 @@ public class ElementModifiers {
 
     public static ElementModifier of(ElementModifier... modifiers) {
         CompoundElementModifier compound = new CompoundElementModifier(modifiers);
-        return switch (compound.size()) {
-            case 0 -> noOp();
-            case 1 -> compound.asList().get(0);
-            default -> compound;
-        };
+        switch (compound.size()) {
+            case 0:
+                return noOp();
+            case 1:
+                return compound.asList().get(0);
+            default:
+                return compound;
+        }
     }
 
     private static <T extends ElementModifier> T getOrCreateElementModifier(String key, Supplier<T> elementModifierSupplier) {

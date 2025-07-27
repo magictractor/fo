@@ -34,7 +34,7 @@ import uk.co.magictractor.fo.FoDocument;
  *             {@code FoDocumentBuilder.TODO()}.
  */
 //  TODO! this needs an elegant way to configure the substitutions (or bin it)
-@Deprecated(forRemoval = true)
+@Deprecated(/* forRemoval = true */)
 public class TextSubstitutionFilter extends BaseContentHandlerFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextSubstitutionFilter.class);
@@ -97,7 +97,7 @@ public class TextSubstitutionFilter extends BaseContentHandlerFilter {
 
     //
     protected String lookup(CharSequence var) {
-        if (CharSequence.compare("metadata.title", var) == 0) {
+        if ("metadata.title".contentEquals(var)) {
             return foDocument.getMetadata().getTitle();
         }
 

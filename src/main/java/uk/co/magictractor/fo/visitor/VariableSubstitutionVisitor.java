@@ -35,9 +35,9 @@ public class VariableSubstitutionVisitor implements NodeVisitor {
     }
 
     public VariableSubstitutionVisitor(String variableOpen, String variableClose) {
-        if (variableOpen.isBlank() || variableClose.isBlank()) {
-            throw new IllegalArgumentException();
-        }
+//        if (variableOpen.isBlank() || variableClose.isBlank()) {
+//            throw new IllegalArgumentException();
+//        }
 
         this.variableOpen = variableOpen;
         this.variableClose = variableClose;

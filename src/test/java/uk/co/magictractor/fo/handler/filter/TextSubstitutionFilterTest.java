@@ -22,7 +22,6 @@ import org.xml.sax.SAXException;
 
 import uk.co.magictractor.fo.FoDocument;
 import uk.co.magictractor.fo.FoDocumentBuilder;
-import uk.co.magictractor.fo.handler.filter.TextSubstitutionFilter;
 
 /**
  *

@@ -18,9 +18,6 @@ package uk.co.magictractor.fo.config;
 import org.apache.xmlgraphics.io.Resource;
 import org.junit.jupiter.api.Test;
 
-import uk.co.magictractor.fo.config.DefaultFoConfig;
-import uk.co.magictractor.fo.config.FoConfig;
-
 public class DefaultFoConfigTest {
 
     /**
@@ -29,9 +26,9 @@ public class DefaultFoConfigTest {
      */
     @Test
     public void testResourceResolver() throws Exception {
-        // Java finds /images/bdc.svg
-        // FOP finds images/bdc.svg (no slash)
-        String stringUri = "images/bdc.svg";
+        // Java finds /pdf/fonts/OpenSans-Bold.ttf
+        // FOP finds pdf/fonts/OpenSans-Bold.ttf (no slash)
+        String stringUri = "pdf/fonts/OpenSans-Bold.ttf";
 
         FoConfig config = DefaultFoConfig.getInstance();
         Resource resource = config.getFopFactory().getFontManager().getResourceResolver().getResource(stringUri);

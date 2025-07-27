@@ -20,13 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import org.assertj.core.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -57,10 +54,8 @@ public class VersionTest {
 
     @Test
     public void testFopVersion_dependency() throws IOException {
-        Path projectDir = determineBaseDir();
-        Assumptions.assumeThat(projectDir).isNotNull();
+        Path gradle = Paths.get(System.getProperty("user.dir"), "fo.gradle");
 
-        Path gradle = projectDir.resolve("fo.gradle");
         if (!Files.exists(gradle)) {
             throw new IllegalStateException("Failed to find gradle build script");
         }
@@ -68,29 +63,6 @@ public class VersionTest {
         assertThat(Version.fopVersion()).isEqualTo(findDependencyVersion(gradle, "org.apache.xmlgraphics:fop-core:"));
     }
 
-    private Path determineBaseDir() {
-        URL url = getClass().getResource(getClass().getSimpleName() + ".class");
-        if (!"file".contentEquals(url.getProtocol())) {
-            // Not running from source, most likely a jar file.
-            // Not appropriate and not possible to write to /src/main/resources
-            return null;
-        }
-
-        URI uri;
-        try {
-            uri = url.toURI();
-        }
-        catch (URISyntaxException e) {
-            throw new IllegalStateException(e);
-        }
-
-        Path path = Path.of(uri);
-        while (!path.endsWith("bin") && !path.endsWith("target")) {
-            path = path.getParent();
-        }
-
-        return path.getParent();
-    }
 
     private String findDependencyVersion(Path gradle, String groupIdAndArtifact) throws IOException {
         if (!groupIdAndArtifact.endsWith(":")) {
