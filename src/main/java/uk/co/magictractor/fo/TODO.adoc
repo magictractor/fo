@@ -1,0 +1,28 @@
+= TODO
+
+My TODO list. In no particular order. Some of these may never happen.
+
+* Bookmarks. Auto bookmark headers. Allow headers to be excluded individually or by level. Allow bookmarks to be added that are not headers.
+
+* Footnotes.
+
+* Getters and setters for page size, margins, font size, language etc.
+
+* Modify XML output to convert some characters to entities, including line separator.
+
+* Post to mailing list. See https://jakarta.apache.org/site/mail.html for guidelines,
+  List at https://lists.apache.org/list?fop-users@xmlgraphics.apache.org. Not used much, but active in 2024.
+  * Discuss Version.getVersion() (maybe that goes directly into Jira), check 2.10+ first
+  * Suggest broadening list of font Content-types
+  * Suggest allowing auto-detect from MANIFEST without also checking system fonts
+
+* Add fonts from code as an alternative to using the manifest.
+
+* Raise ticket for exception when loading Font Awesome 6 .otf files. CastCastException in OTFFile.updateBBoxAndOffset(). Bounds are Doubles but code casts them to Integers. To replicate repeatedly it will likely be necessary to delete the font cache file ($HOME/.fop/fop-fonts.cache).
+Can workaround by using .ttf files instead. Updating Apache FontBox dependency (to 3.0.4) caused NoSuchMethodError (fair enough). 2.0.33 has the same ClassCastException.
+
+* Improve event handling/logging in FoWriterBuilder. Default FOP is too noisy, but suppressing all messages caused info about font loading errors to be lost.
+
+* Add ability to auto-resize fonts when text is in a fixed-width block.
+https://stackoverflow.com/questions/7497681/xsl-fo-auto-resize-font-size-in-a-fixed-cell
+https://xmlgraphics.apache.org/fop/2.10/intermediate.html

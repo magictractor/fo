@@ -1,0 +1,90 @@
+https://docs.asciidoctor.org/asciidoc/latest/tables/build-a-basic-table/
+
+[cols="1,1,1,1,1"]
+|===
+|
+| FOP
+| HTML
+| Asciidoctor
+| Discord
+
+| bold
+| font-weight="bold"
+| <b>
+| *
+| **
+
+| italic
+| font-style="italic"
+| <i>
+| _
+| &ast; or _ (&ast;&ast;&ast; for bold italic)
+
+| strikethrough
+| text-decoration="line-through"
+|
+| &plus;&plus;&plus;<s>&plus;&plus;&plus;text&plus;&plus;&plus;</s>&plus;&plus;&plus;
+| __
+
+| underline
+| text-decoration="underline"
+|
+| &plus;&plus;&plus;<u>&plus;&plus;&plus;text&plus;&plus;&plus;</u>&plus;&plus;&plus;
+| ~~
+
+| foreground colour
+|
+| color attribute
+| _needs theme_
+| n/a
+
+| background colour
+|
+| background-color attribute
+| _needs theme_
+| n/a
+
+| heading
+| font-weight, font-size and id
+| h1-h6
+| = to ======
+| n/a
+
+| newline
+| line separator char (&amp;2028;)
+| <br>
+| trailing " +"
+| newline or &amp;2029; ??
+
+|===
+
+===== XSL:FO
+https://www.w3.org/TR/xsl11/#refine-text-decoration
+
+===== Asciidoctor
+Bold and italic +
+https://docs.asciidoctor.org/asciidoc/latest/text
+
+Strikethrough and underline +
+Text spans don't work https://docs.asciidoctor.org/asciidoc/latest/text/text-span-built-in-roles  +
+https://github.com/github/markup/issues/1117
+
+Pass macro (pass:[xxx]) does not work either.
+
+Can use inline passthrough for HTML only. Works in Eclipse preview.
+
+
+[.line-through]#strikethrough# +
+[.underline]#underline# +
++++<s>+++text+++</s>+++ +
++++ +++<s>+++text+++</s>+++ +++ +
+&plus;&plus;&plus;<s>&plus;&plus;&plus;text&plus;&plus;&plus;</s>&plus;&plus;&plus; +
+before pass:[<u>underline me</u>] after +
+*_+++<s>+++combined+++</s>+++_*
+
+
+===== Discord
+
+https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline +
+
+

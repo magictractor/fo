@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<fo:root font-family="Open Sans, monospace" font-size="11pt" xmlns:fo="http://www.w3.org/1999/XSL/Format" language="en">
+    <fo:layout-master-set>
+        <fo:simple-page-master margin-bottom="7mm" margin-left="25mm" margin-right="12mm" margin-top="12mm" master-name="page-a4" page-height="297mm" page-width="210mm">
+            <fo:region-body margin-bottom="15pt"/>
+            <fo:region-before display-align="before"/>
+            <fo:region-after display-align="after" extent="15pt"/>
+        </fo:simple-page-master>
+    </fo:layout-master-set>
+
+    <!-- http://www.datypic.com/sc/fo11/e-fo_bookmark-title.html -->
+    <!-- color and font-style are not yet supported by FOP, see https://xmlgraphics.apache.org/fop/compliance.html; font-family is not valid -->
+    <!--
+    <fo:bookmark-tree font-family="monospace">
+         <fo:bookmark internal-destination="bookmark1"><fo:bookmark-title>Twenty</fo:bookmark-title></fo:bookmark>
+         <fo:bookmark internal-destination="bookmark2"><fo:bookmark-title>Forty</fo:bookmark-title></fo:bookmark>
+         <fo:bookmark internal-destination="bookmark3" starting-state="hide">
+            <fo:bookmark-title>More</fo:bookmark-title>
+            <fo:bookmark internal-destination="bookmark3"><fo:bookmark-title>Sixty</fo:bookmark-title></fo:bookmark>
+            <fo:bookmark internal-destination="bookmark4"><fo:bookmark-title>Eighty</fo:bookmark-title></fo:bookmark>
+         </fo:bookmark>
+    </fo:bookmark-tree>
+    -->
+    
+
+
+    
+    <fo:page-sequence master-reference="page-a4">
+        <fo:static-content flow-name="xsl-region-before">
+            <!-- https://stackoverflow.com/questions/38847477/why-overflow-in-block-progression -->
+            <fo:block text-align="right" height="25pt" border="none" padding="0" margin="0">
+                 <fo:external-graphic margin="0" padding="0" border="0" src="images/bdc.svg" height="30pt" content-width="scale-down-to-fit" content-height="scale-down-to-fit"/>
+            </fo:block>
+        </fo:static-content>
+        <fo:static-content flow-name="xsl-region-after" font-size="65%">
+            <fo:block border-top-style="solid" border-top-width="thin" padding-left="2px" padding-right="2px" padding-top="2px" text-align-last="justify">
+                ${footer.left}
+                <fo:leader leader-pattern="space"/>
+                ${footer.middle}
+                <fo:leader leader-pattern="space"/>
+                <fo:page-number/>
+            </fo:block>
+        </fo:static-content>
+        <fo:flow flow-name="xsl-region-body">
+        </fo:flow>
+    </fo:page-sequence>
+</fo:root>
