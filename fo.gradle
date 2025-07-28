@@ -85,7 +85,7 @@ dependencies {
 
     implementation libs.guava
     
-    implementation("org.apache.xmlgraphics:fop-core:2.10")  {
+    implementation("org.apache.xmlgraphics:fop-core:2.11")  {
       // Excluded because classes conflict with newer JDKs.
       exclude group: "xml-apis", module: "xml-apis"
       // Excluded because jcl-over-slf4j is used.
