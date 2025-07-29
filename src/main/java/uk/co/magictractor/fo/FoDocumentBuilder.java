@@ -243,7 +243,13 @@ public class FoDocumentBuilder {
      */
     public Element startHeading(int level, ElementModifier... elementModifiers) {
         // TODO! this doesn't look right, commenting it out to see if anything fails.
-        // ensureReady();
+        // Yes, Example001 failed when doing heading before anything else.
+        // Propose FoDocumentTemplate that would be passed in the the builder constructor.
+        // Would have ProvidedDocumentTemplates with some defaults.
+        // Could then eliminate ensureReady() and hard coding with
+        // variableSubstitutionVisitor and hard coding of default styles
+        // (the hard coding would be moved to the templates).
+        ensureReady();
 
         if (level < 1 || level > 6) {
             // This is consistent with HTML headers.
