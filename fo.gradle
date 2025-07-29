@@ -59,6 +59,8 @@ test {
 }
 
 java {
+    sourceSets.main.java.srcDirs += ['src/examples/java']
+    
     // Restricted to Java 8 to match Apache FOP.
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
