@@ -169,10 +169,8 @@ public class FoWriterBuilder {
         }
 
         if (eventListeners.isEmpty()) {
-            // TODO! revisit this. The default is too noisy, but this suppression is too aggressive
-            // and hid issues with loading a font (Font Awesome 6 .otf files). See FontEventListener.
-            //
-            // Use a stub rather than the default LoggingEventListener.
+            // Provide a default LoggingEventListener, otherwise FOP
+            // will provide a default that is too noisy.
             userAgent.getEventBroadcaster().addEventListener(this::defaultEventListener);
         }
         else {
@@ -197,6 +195,10 @@ public class FoWriterBuilder {
             return;
         }
 
+        // Continue to log everything else.
+        //
+        // This was previously too aggressive and hid issues with loading a font (Font Awesome 6 .otf files). See FontEventListener.
+        // The font issue still exist with 2.11. Delete ~/.fop/fop-cache to see it.
         DEFAULT_EVENT_LISTENER.processEvent(event);
     }
 
