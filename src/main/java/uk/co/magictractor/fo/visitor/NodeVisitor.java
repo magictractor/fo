@@ -15,7 +15,7 @@
  */
 package uk.co.magictractor.fo.visitor;
 
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -81,7 +81,7 @@ public interface NodeVisitor {
             case Node.DOCUMENT_NODE:
                 return visitDocument((Document) node, depth);
             default:
-                LoggerFactory.getLogger(NodeVisitor.class).warn("Code needs modification to handle node type " + node.getNodeType() + " for " + node.getClass().getSimpleName());
+                LogFactory.getLog(NodeVisitor.class).warn("Code needs modification to handle node type " + node.getNodeType() + " for " + node.getClass().getSimpleName());
                 return STATUS_CONTINUE;
         }
     }

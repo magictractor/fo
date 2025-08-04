@@ -18,8 +18,8 @@ package uk.co.magictractor.fo.samples;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import uk.co.magictractor.fo.DocIO;
 import uk.co.magictractor.fo.FoDocument;
@@ -35,7 +35,7 @@ import uk.co.magictractor.fo.modifiers.ElementModifiers;
  */
 public class ColorDoc {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ColorDoc.class);
+    private static final Log LOGGER = LogFactory.getLog(ColorDoc.class);
 
     public void createDoc(ColorAttributeSetter... colorSetters) {
         FoDocumentBuilder docBuilder = new FoDocumentBuilder()
@@ -71,7 +71,7 @@ public class ColorDoc {
             ElementModifiers.highlighterPastelPink());
 
         long end = System.currentTimeMillis();
-        LOGGER.info("Doc creation complete in {} ms.", end - start);
+        LOGGER.info("Doc creation complete in " + (end - start) + " ms");
     }
 
 }

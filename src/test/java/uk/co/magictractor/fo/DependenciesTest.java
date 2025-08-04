@@ -15,6 +15,7 @@
  */
 package uk.co.magictractor.fo;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
@@ -25,13 +26,24 @@ import org.junit.jupiter.api.Test;
 public class DependenciesTest {
 
     /**
-     * This test will fail if a new transitive dependency on commons-logging is
-     * added. An exclusion should be added as done for
-     * {@code org.apache.xmlgraphics:fop}.
+     * This library uses Jakarta Commons Logging, as provided by Apache FOP.
+     * This means that consumers deal with logging exactly as they if using
+     * Apache FOP directly.
      */
     @Test
-    public void testCommonsLogging() {
-        assertThatThrownBy(() -> Class.forName("org.apache.commons.logging.impl.Jdk14Logger"))
+    public void testCommonsLogging() throws ClassNotFoundException {
+        assertThat(Class.forName("org.apache.commons.logging.impl.Jdk14Logger"))
+                .isNotNull();
+    }
+
+    /**
+     * Jakarta Commons Logging is being used (see above). It can bridge to
+     * SLF4J, but that is kept off the classpath to prevent SLF4J Loggers being
+     * used accidentally.
+     */
+    @Test
+    public void testSlf4j() {
+        assertThatThrownBy(() -> Class.forName("org.slf4j.Logger"))
                 .isExactlyInstanceOf(ClassNotFoundException.class);
     }
 

@@ -15,7 +15,7 @@
  */
 package uk.co.magictractor.fo.handler;
 
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.ext.LexicalHandler;
 
@@ -30,7 +30,7 @@ public interface HasLexicalHandler {
     public static LexicalHandler getLexicalHandler(ContentHandler contentHandler) {
         if (contentHandler instanceof LexicalHandler) {
             if (contentHandler instanceof HasLexicalHandler) {
-                LoggerFactory.getLogger(contentHandler.getClass())
+                LogFactory.getLog(contentHandler.getClass())
                         .warn(contentHandler.getClass().getSimpleName()
                                 + " implements both LexicalHandler and HasLexicalHandler. Only one should be used. HasLexicalHandler has been ignored.");
             }

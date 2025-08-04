@@ -17,8 +17,8 @@ package uk.co.magictractor.fo.handler.filter;
 
 import java.nio.CharBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
@@ -37,7 +37,7 @@ import uk.co.magictractor.fo.FoDocument;
 @Deprecated(/* forRemoval = true */)
 public class TextSubstitutionFilter extends BaseContentHandlerFilter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TextSubstitutionFilter.class);
+    private static final Log LOGGER = LogFactory.getLog(TextSubstitutionFilter.class);
 
     private static final char[] START_VAR = new char[] { '$', '{' };
     private static final char END_VAR = '}';
@@ -104,7 +104,7 @@ public class TextSubstitutionFilter extends BaseContentHandlerFilter {
         // Or can return null to keep the "${var}" in the output.
         // return null;
 
-        LOGGER.warn("Unknown variable name \"{}\", substituted with empty string", var);
+        LOGGER.warn("Unknown variable name \"" + var + "\", substituted with empty string");
         return "";
     }
 

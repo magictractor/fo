@@ -71,6 +71,9 @@ java {
 
 tasks.withType(Jar) {
     destinationDirectory.set(file("$rootDir/jars"))
+    // commons-logging.properties
+    exclude('commons-logging.properties')
+    exclude('simplelog.properties')
 }
 
 clean {
@@ -80,18 +83,15 @@ clean {
 // "libs.xxx" refers to libraries configured in version catalog in settings.gradle.
 dependencies {
     // Logger API.
-    implementation libs.slf4j.api
-    implementation libs.jcl.over.slf4j
-    // Logger implementation for unit tests and main() methods.
-    runtimeOnly libs.logback.classic
+    // Apache FOP uses JCL, so this library uses JCL too.
+    // The SimpleLog implementation is used for unit tests and main() methods,
+    // but is excluded from the jar.
 
     implementation libs.guava
     
     implementation("org.apache.xmlgraphics:fop-core:2.11")  {
       // Excluded because classes conflict with newer JDKs.
       exclude group: "xml-apis", module: "xml-apis"
-      // Excluded because jcl-over-slf4j is used.
-      exclude group: "commons-logging", module: "commons-logging"
     }
     
     testImplementation libs.junit.jupiter;

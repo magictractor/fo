@@ -23,14 +23,14 @@ import java.util.Map;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.fop.configuration.Configuration;
 import org.apache.fop.configuration.ConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DynamicConfiguration implements Configuration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicConfiguration.class);
+    private static final Log LOGGER = LogFactory.getLog(DynamicConfiguration.class);
 
     // Workaround for NullConfiguration not being public.
     // TODO! revisit once DynamicConfiguration is more complete.
@@ -66,7 +66,20 @@ public class DynamicConfiguration implements Configuration {
         if (child == null) {
             child = new NullConfiguration(xpath + "/" + key);
         }
-        debug("getChild(\"{}\"): {} -> {}", key, xpath + "/" + key, child);
+        if (LOGGER.isDebugEnabled()) {
+            // debug("getChild(\"{}\"): {} -> {}", key, xpath + "/" + key, child);
+            String msg = new StringBuilder()
+                    .append("getChild(\"")
+                    .append(key)
+                    .append("\"): ")
+                    .append(xpath)
+                    .append('/')
+                    .append(key)
+                    .append(" -> ")
+                    .append(child)
+                    .toString();
+            LOGGER.debug(msg);
+        }
         return child;
     }
 
@@ -76,7 +89,22 @@ public class DynamicConfiguration implements Configuration {
         if (child == null && required) {
             child = new NullConfiguration(xpath + "/" + key);
         }
-        debug("getChild(\"{}\", {}): {} -> {}", key, required, xpath + "/" + key, child);
+        if (LOGGER.isDebugEnabled()) {
+            // debug("getChild(\"{}\", {}): {} -> {}", key, required, xpath + "/" + key, child);
+            String msg = new StringBuilder()
+                    .append("getChild(\"")
+                    .append(key)
+                    .append(", ")
+                    .append(required)
+                    .append("\"): ")
+                    .append(xpath)
+                    .append('/')
+                    .append(key)
+                    .append(" -> ")
+                    .append(child)
+                    .toString();
+            LOGGER.debug(msg);
+        }
         return child;
     }
 
@@ -94,7 +122,21 @@ public class DynamicConfiguration implements Configuration {
             }
             children = childrenList.toArray(new Configuration[0]);
         }
-        debug("getChildren(\"{}\"): {} -> [{}]", key, xpath + "/" + key, children.length);
+        if (LOGGER.isDebugEnabled()) {
+            // debug("getChildren(\"{}\"): {} -> [{}]", key, xpath + "/" + key, children.length);
+            String msg = new StringBuilder()
+                    .append("getChildren(\"")
+                    .append(key)
+                    .append("\"): ")
+                    .append(xpath)
+                    .append('/')
+                    .append(key)
+                    .append(" -> [")
+                    .append(children.length)
+                    .append(']')
+                    .toString();
+            LOGGER.debug(msg);
+        }
         return children;
     }
 
@@ -109,7 +151,21 @@ public class DynamicConfiguration implements Configuration {
 
     private <T> T getAttribute(String methodName, String key, Class<T> type) {
         T attribute = getAttribute0(key, type);
-        debug("{}(\"{}\"): {} -> {}", methodName, key, xpath + "/@" + key, attribute);
+        if (LOGGER.isDebugEnabled()) {
+            // debug("{}(\"{}\"): {} -> {}", methodName, key, xpath + "/@" + key, attribute);
+            String msg = new StringBuilder()
+                    .append(methodName)
+                    .append("(\"")
+                    .append(key)
+                    .append("\"): ")
+                    .append(xpath)
+                    .append("/@")
+                    .append(key)
+                    .append(" -> ")
+                    .append(attribute)
+                    .toString();
+            LOGGER.debug(msg);
+        }
         return attribute;
     }
 
@@ -118,7 +174,23 @@ public class DynamicConfiguration implements Configuration {
         if (attribute == null) {
             attribute = defaultValue;
         }
-        debug("{}(\"{}\", {}): {} -> {}", methodName, key, defaultValue, xpath + "/@" + key, attribute);
+        if (LOGGER.isDebugEnabled()) {
+            // debug("{}(\"{}\", {}): {} -> {}", methodName, key, defaultValue, xpath + "/@" + key, attribute);
+            String msg = new StringBuilder()
+                    .append(methodName)
+                    .append("(\"")
+                    .append(key)
+                    .append(", ")
+                    .append(defaultValue)
+                    .append("\"): ")
+                    .append(xpath)
+                    .append("/@")
+                    .append(key)
+                    .append(" -> ")
+                    .append(attribute)
+                    .toString();
+            LOGGER.debug(msg);
+        }
         return attribute;
     }
 
@@ -167,18 +239,24 @@ public class DynamicConfiguration implements Configuration {
         return type.cast(value);
     }
 
-    private <T> T getValue(String methodName, Class<T> type) {
-        T value = getValue0(type);
-        debug("{}(): {} -> {}", methodName, xpath, value);
-        return value;
-    }
-
     private <T> T getValue(String methodName, T defaultValue, Class<T> type) {
         T value = getValue0(type);
         if (value == null) {
             value = defaultValue;
         }
-        debug("{}({}): {} -> {}", methodName, defaultValue, xpath, value);
+        if (LOGGER.isDebugEnabled()) {
+            //  debug("{}({}): {} -> {}", methodName, defaultValue, xpath, value);
+            String msg = new StringBuilder()
+                    .append(methodName)
+                    .append("(")
+                    .append(defaultValue)
+                    .append("): ")
+                    .append(xpath)
+                    .append(" -> ")
+                    .append(value)
+                    .toString();
+            LOGGER.debug(msg);
+        }
         return value;
     }
 
@@ -199,7 +277,16 @@ public class DynamicConfiguration implements Configuration {
     @Override
     public boolean getValueAsBoolean() {
         Boolean booleanValue = "true".equals(value);
-        debug("getValueAsBoolean(): {} -> {}", xpath, booleanValue);
+        if (LOGGER.isDebugEnabled()) {
+            // debug("getValueAsBoolean(): {} -> {}", xpath, booleanValue);
+            String msg = new StringBuilder()
+                    .append("getValueAsBoolean(): ")
+                    .append(xpath)
+                    .append(" -> ")
+                    .append(booleanValue)
+                    .toString();
+            LOGGER.debug(msg);
+        }
 
         return booleanValue;
     }
@@ -234,10 +321,6 @@ public class DynamicConfiguration implements Configuration {
     @Override
     public String getLocation() {
         throw new UnsupportedOperationException();
-    }
-
-    private void debug(String format, Object... args) {
-        LOGGER.debug(format, args);
     }
 
     public void setAttribute(String key, String value) {
