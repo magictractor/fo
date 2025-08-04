@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.magictractor.fo;
+package uk.co.magictractor.fo.example;
 
+import uk.co.magictractor.fo.DocIO;
+import uk.co.magictractor.fo.FoDocument;
+import uk.co.magictractor.fo.FoDocumentBuilder;
+import uk.co.magictractor.fo.FoWriter;
+import uk.co.magictractor.fo.FoWriterBuilder;
 import uk.co.magictractor.fo.handler.FoPdfTransform;
 
 public class Example101 {
@@ -29,7 +34,7 @@ public class Example101 {
         FoDocument doc = docBuilder.build();
 
         FoWriterBuilder writerBuilder = new FoWriterBuilder();
-        writerBuilder.addTransform(new FoPdfTransform(), new DocIO("examples"));
+        writerBuilder.addTransform(new FoPdfTransform(), new DocIO(Example101.class.getSimpleName()));
 
         FoWriter writer = writerBuilder.build();
         writer.dump(doc);
