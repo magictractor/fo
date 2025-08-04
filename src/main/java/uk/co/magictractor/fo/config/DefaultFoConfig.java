@@ -41,6 +41,7 @@ import org.apache.xmlgraphics.io.ResourceResolver;
 /**
  *
  */
+// TODO! FoConfig builder? would make it easy to use a non-standard resolver, transformer etc.
 public class DefaultFoConfig implements FoConfig {
 
     private static final FoConfig INSTANCE = new DefaultFoConfig();
@@ -92,7 +93,12 @@ public class DefaultFoConfig implements FoConfig {
 
             private final FontManager fontManager = new FontManager(
                 ResourceResolverFactory.createInternalResourceResolver(defaultBaseUri, resourceResolver),
-                new ManifestFontDetector(),
+                // Maybe allow the FontDetector to be configurable? Might want default. Options include: also reads system fonts (FOP default),
+                // or ManifestFontDetector, or none (same as turning off auto detect).
+                // TODO! log warning/error if auto detect not on and a font detector is comnfigured
+                // hmm... maybe combine the detectors so per doc fonts can be ignored if also in the manifest??
+                // More weight for a FoConfigBuilder?
+                new MultiFontDetector(new ManifestFontDetector(), new FoWriterFontDetector()),
                 FontCacheManagerFactory.createDefault());
 
             @Override
@@ -116,6 +122,7 @@ public class DefaultFoConfig implements FoConfig {
             }
         };
 
+        // TODO! check for a user /fop.xconf and use /fo_default.xconf if not present.
         DefaultConfiguration configuration;
         try (InputStream confStream = getClass().getResourceAsStream("/fop.xconf")) {
             configuration = new DefaultConfigurationBuilder().build(confStream);

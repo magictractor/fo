@@ -15,18 +15,14 @@
  */
 package uk.co.magictractor.fo.config;
 
-import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.fop.apps.FOPException;
 import org.apache.fop.fonts.EmbedFontInfo;
 import org.apache.fop.fonts.FontAdder;
-import org.apache.fop.fonts.FontDetector;
 import org.apache.fop.fonts.FontEventListener;
 import org.apache.fop.fonts.FontManager;
-import org.apache.fop.util.LogUtil;
 import org.apache.xmlgraphics.util.ClasspathResource;
 
 /**
@@ -40,9 +36,7 @@ import org.apache.xmlgraphics.util.ClasspathResource;
  * {@code FopFactoryBuilder}.
  * </p>
  */
-public class ManifestFontDetector implements FontDetector {
-
-    private static Log log = LogFactory.getLog(ManifestFontDetector.class);
+public class ManifestFontDetector extends AbstractFontDetector {
 
     /**
      * {@code application/x-font} and {@code application/x-font-truetype} are
@@ -58,14 +52,11 @@ public class ManifestFontDetector implements FontDetector {
 
     @Override
     public void detect(FontManager fontManager, FontAdder fontAdder, boolean strict, FontEventListener eventListener, List<EmbedFontInfo> fontInfoList) throws FOPException {
-        try {
-            ClasspathResource resource = ClasspathResource.getInstance();
-            for (String mimeTypes : FONT_MIMETYPES) {
-                fontAdder.add(resource.listResourcesOfMimeType(mimeTypes), fontInfoList);
-            }
-        }
-        catch (URISyntaxException use) {
-            LogUtil.handleException(log, use, strict);
+        ClasspathResource resource = ClasspathResource.getInstance();
+        for (String mimeTypes : FONT_MIMETYPES) {
+            @SuppressWarnings("unchecked")
+            List<URL> fontUrls = resource.listResourcesOfMimeType(mimeTypes);
+            super.addFonts(fontUrls, fontAdder, strict, eventListener, fontInfoList);
         }
     }
 

@@ -15,6 +15,9 @@
  */
 package uk.co.magictractor.fo;
 
+import java.net.URL;
+import java.util.List;
+
 import org.w3c.dom.Document;
 
 /**
@@ -25,5 +28,12 @@ public interface FoDocument {
     Document getDomDocument();
 
     FoMetadata getMetadata();
+
+    /**
+     * TODO! doc
+     *
+     * @return {@code URL}s that
+     */
+    List<URL> getFontUrls();
 
 }

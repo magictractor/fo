@@ -15,6 +15,8 @@
  */
 package uk.co.magictractor.fo;
 
+import java.net.URL;
+import java.util.List;
 import java.util.function.Function;
 
 import javax.xml.transform.TransformerException;
@@ -24,6 +26,7 @@ import javax.xml.transform.sax.SAXResult;
 import org.xml.sax.ContentHandler;
 
 import uk.co.magictractor.fo.config.FoConfig;
+import uk.co.magictractor.fo.config.FoWriterFontDetector;
 import uk.co.magictractor.fo.handler.HasLexicalHandler;
 
 /**
@@ -42,6 +45,22 @@ public class FoWriter {
     }
 
     public void dump(FoDocument foDocument) {
+        List<URL> fontUrls = foDocument.getFontUrls();
+        if (fontUrls == null || fontUrls.isEmpty()) {
+            write0(foDocument);
+        }
+        else {
+            try {
+                FoWriterFontDetector.setFontUrls(fontUrls);
+                write0(foDocument);
+            }
+            finally {
+                FoWriterFontDetector.reset();
+            }
+        }
+    }
+
+    private void write0(FoDocument foDocument) {
         ContentHandler handler = contentHandlerFunction.apply(foDocument);
 
         SAXResult result = new SAXResult(handler);

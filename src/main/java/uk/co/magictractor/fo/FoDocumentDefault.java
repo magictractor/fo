@@ -15,6 +15,13 @@
  */
 package uk.co.magictractor.fo;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.w3c.dom.Document;
 
 /**
@@ -47,6 +54,35 @@ import org.w3c.dom.Document;
             foMetadata = new FoMetadataDom(domDocument);
         }
         return foMetadata;
+    }
+
+    // TODO! will likely initially be held in a template.
+    // template also contains defaults for "h1" etc.
+    // should be able to add Fonts for a single document.
+    @Override
+    public List<URL> getFontUrls() {
+        List<URL> fontUrls = new ArrayList<>();
+        try {
+            // TODO! URI constructors (see deprecation in Java 20)
+            // fontUrls.add(new URL("file:pdf/fonts/OpenSans-Regular.ttf"));
+            fontUrls.add(new URI("file:pdf/fonts/OpenSans-Regular.ttf").toURL());
+            fontUrls.add(new URL("file:pdf/fonts/OpenSans-Bold.ttf"));
+            fontUrls.add(new URL("file:pdf/fonts/OpenSans-Italic.ttf"));
+            // temp typo
+            fontUrls.add(new URL("file:pdf/fonts/OpenSans-BoldItalicsTypo.ttf"));
+            // temp duplicate
+            fontUrls.add(new URL("file:pdf/fonts/OpenSans-Bold.ttf"));
+            // error??
+            fontUrls.add(new URL("file:////pdf/fonts/OpenSans-Bold.ttf"));
+            // temp .TTC (multiple fonts
+            fontUrls.add(new URL("file:/c:/windows/fonts/msgothic.ttc"));
+            fontUrls.add(new URL("file:/c:/windows/fonts/cambria.ttc"));
+            fontUrls.add(new URL("file:/c:/windows/fonts/nirmala.ttc"));
+        }
+        catch (URISyntaxException | MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
+        return fontUrls;
     }
 
 }
