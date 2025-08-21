@@ -20,11 +20,13 @@ import static uk.co.magictractor.fo.modifiers.ElementModifiers.attributeSetter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.URL;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -86,7 +88,7 @@ public class FoDocumentBuilder {
     private Document domDocument;
     private FoMetadataDom foMetadata;
 
-    private VariableSubstitutionVisitor variableSubstitutionVisitor = new VariableSubstitutionVisitor();
+    private VariableSubstitutionVisitor variableSubstitutionVisitor;
 
     // Stack could/should contain more info? isImplict and info about newlines...
     private ElementStack elementStack = new ArrayElementStack();
@@ -105,12 +107,28 @@ public class FoDocumentBuilder {
 
     private boolean isStartOfLine = true;
 
-    public FoDocumentBuilder() {
-        variableSubstitutionVisitor.add("footer.left", () -> getMetadata().getTitle());
-        variableSubstitutionVisitor.add("footer.middle", "");
+    public FoDocumentBuilder(FoTemplate template) {
+        // TODO! rework this, withDocumentResource() predates the constructors with args.
+        withDocument0((Document) template.getDomDocument().cloneNode(true));
+
+        if (template.getVariableSubstitutionVisitor() != null) {
+            variableSubstitutionVisitor = new VariableSubstitutionVisitor(null, template.getVariableSubstitutionVisitor());
+        }
+        // TODO! copy indent from the template?
+        foIndent = FoIndent.infer(domDocument);
+
     }
 
-    public FoDocumentBuilder withDocumentResource(String resourceName) {
+    /**
+     * Constructor typically used for building templates from resource files.
+     */
+    public FoDocumentBuilder(String resourceName) {
+        // TODO! rework this, withDocumentResource() predates the constructors with args.
+        withDocumentResource(resourceName);
+        foIndent = FoIndent.infer(domDocument);
+    }
+
+    private FoDocumentBuilder withDocumentResource(String resourceName) {
         try (InputStream in = getClass().getResourceAsStream(resourceName)) {
             if (in == null) {
                 throw new IllegalArgumentException("Missing resource " + resourceName);
@@ -123,7 +141,7 @@ public class FoDocumentBuilder {
     }
 
     // Caller is responsible for closing the stream.
-    public FoDocumentBuilder withDocumentStream(InputStream in) {
+    private FoDocumentBuilder withDocumentStream(InputStream in) {
         if (in == null) {
             throw new IllegalArgumentException("InputStream must not be null");
         }
@@ -138,6 +156,7 @@ public class FoDocumentBuilder {
 
         this.domDocument = domDocument;
         Element body = getBody();
+        // TODO! strip is only needed after reading a resource
         DomUtil.stripTrailingWhiteSpace(body);
 
         Node p = body;
@@ -151,6 +170,7 @@ public class FoDocumentBuilder {
     }
 
     public FoDocumentBuilder withBodyFunction(Function<Document, Element> bodyFunction) {
+        // TODO! after introducing templates this will always be null
         if (this.domDocument != null) {
             throw new IllegalArgumentException("Body function should be set before the document (because the body has whitespace removed");
         }
@@ -163,10 +183,6 @@ public class FoDocumentBuilder {
         return this;
     }
 
-    private Document cloneTemplate() {
-        return (Document) domDocument.cloneNode(true);
-    }
-
     /**
      * The returned {@code Map} is immutable.
      */
@@ -175,17 +191,6 @@ public class FoDocumentBuilder {
     //    public Map<String, Map<String, String>> getAttributeMap() {
     //        return DEFAULT_ATTRIBUTE_MAP;
     //    }
-
-    // TODO! better name? ready for what??
-    private void ensureReady() {
-        if (domDocument == null) {
-            withDocumentResource("template.fo");
-        }
-
-        if (foIndent == null) {
-            foIndent = FoIndent.infer(domDocument);
-        }
-    }
 
     private Element getBody() {
         return bodyFunction == null ? getBody0(domDocument) : bodyFunction.apply(domDocument);
@@ -207,11 +212,15 @@ public class FoDocumentBuilder {
     }
 
     public FoDocument build() {
-        ensureReady();
+        FoDocument document = new Template(domDocument, Collections.emptyList(), null);
+        NodeVisitor documentVisitor = new VariableSubstitutionVisitor(document, variableSubstitutionVisitor);
+        NodeVisitor.traverse(document.getDomDocument(), documentVisitor);
 
-        NodeVisitor.traverse(domDocument, variableSubstitutionVisitor);
+        return document;
+    }
 
-        return new FoDocumentDefault(domDocument);
+    public FoTemplate buildTemplate() {
+        return new Template(domDocument, Collections.emptyList(), variableSubstitutionVisitor);
     }
 
     public Element appendHeading(int level, String text, ElementModifier... elementModifiers) {
@@ -242,15 +251,6 @@ public class FoDocumentBuilder {
      * </p>
      */
     public Element startHeading(int level, ElementModifier... elementModifiers) {
-        // TODO! this doesn't look right, commenting it out to see if anything fails.
-        // Yes, Example001 failed when doing heading before anything else.
-        // Propose FoDocumentTemplate that would be passed in the the builder constructor.
-        // Would have ProvidedDocumentTemplates with some defaults.
-        // Could then eliminate ensureReady() and hard coding with
-        // variableSubstitutionVisitor and hard coding of default styles
-        // (the hard coding would be moved to the templates).
-        ensureReady();
-
         if (level < 1 || level > 6) {
             // This is consistent with HTML headers.
             // Asciidoc uses levels 0-5 mapping to HTML h1-h6, with 0 reserved for the title of book documents.
@@ -520,7 +520,6 @@ public class FoDocumentBuilder {
 
     private FoMetadataDom getMetadata() {
         if (foMetadata == null) {
-            ensureReady();
             foMetadata = new FoMetadataDom(domDocument, foIndent::applyIndent);
         }
         return foMetadata;
@@ -573,13 +572,54 @@ public class FoDocumentBuilder {
     }
 
     public FoDocumentBuilder withVariableSubstitution(String variableName, String replacement) {
-        variableSubstitutionVisitor.add(variableName, replacement);
+        return withVariableSubstitution(variableName, (doc) -> replacement);
+    }
+
+    public FoDocumentBuilder withVariableSubstitution(String variableName, Function<FoDocument, String> replacementValueFunction) {
+        if (variableSubstitutionVisitor == null) {
+            variableSubstitutionVisitor = new VariableSubstitutionVisitor();
+        }
+        variableSubstitutionVisitor.add(variableName, replacementValueFunction);
         return this;
     }
 
-    public FoDocumentBuilder withVariableSubstitution(String variableName, Supplier<String> replacementSupplier) {
-        variableSubstitutionVisitor.add(variableName, replacementSupplier);
-        return this;
+    private static class Template implements FoTemplate {
+
+        private final Document domDocument;
+        private final List<URL> fontUrls;
+        private final VariableSubstitutionVisitor variableSubstitutionVisitor;
+
+        private FoMetadata foMetadata;
+
+        /* default */ Template(Document domDocument, List<URL> fontUrls, VariableSubstitutionVisitor variableSubstitutionVisitor) {
+            this.domDocument = domDocument;
+            this.fontUrls = fontUrls;
+            this.variableSubstitutionVisitor = variableSubstitutionVisitor;
+        }
+
+        @Override
+        public Document getDomDocument() {
+            return domDocument;
+        }
+
+        @Override
+        public FoMetadata getMetadata() {
+            if (foMetadata == null) {
+                foMetadata = new FoMetadataDom(domDocument);
+            }
+            return foMetadata;
+        }
+
+        @Override
+        public List<URL> getFontUrls() {
+            return fontUrls;
+        }
+
+        @Override
+        public VariableSubstitutionVisitor getVariableSubstitutionVisitor() {
+            return variableSubstitutionVisitor;
+        }
+
     }
 
 }

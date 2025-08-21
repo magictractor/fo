@@ -26,8 +26,7 @@ public class FoDocumentBuilderTest {
 
     @Test
     public void testMetadata_template() {
-        FoDocument doc = new FoDocumentBuilder()
-                .withDocumentResource("test_metadata.fo")
+        FoDocument doc = new FoDocumentBuilder("test_metadata.fo")
                 .build();
 
         assertThat(doc.getMetadata().getTitle()).isEqualTo("DC:TITLE");
@@ -44,8 +43,7 @@ public class FoDocumentBuilderTest {
 
     @Test
     public void testMetadata_unset() {
-        FoDocument doc = new FoDocumentBuilder()
-                .build();
+        FoDocument doc = FoTemplates.getTemplate();
 
         assertThat(doc.getMetadata().getTitle()).isNull();
         assertThat(doc.getMetadata().getAuthor()).isNull();
@@ -60,7 +58,7 @@ public class FoDocumentBuilderTest {
 
     @Test
     public void testMetadataTitle() {
-        FoDocument doc = new FoDocumentBuilder()
+        FoDocument doc = new FoDocumentBuilder(FoTemplates.getTemplate())
                 .withMetadataTitle("TITLE")
                 .build();
 
@@ -69,7 +67,7 @@ public class FoDocumentBuilderTest {
 
     @Test
     public void testMetadataAuthor() {
-        FoDocument doc = new FoDocumentBuilder()
+        FoDocument doc = new FoDocumentBuilder(FoTemplates.getTemplate())
                 .withMetadataAuthor("AUTHOR")
                 .build();
 
@@ -78,7 +76,7 @@ public class FoDocumentBuilderTest {
 
     @Test
     public void testMetadataSubject() {
-        FoDocument doc = new FoDocumentBuilder()
+        FoDocument doc = new FoDocumentBuilder(FoTemplates.getTemplate())
                 .withMetadataSubject("SUBJECT")
                 .build();
 
@@ -87,7 +85,7 @@ public class FoDocumentBuilderTest {
 
     @Test
     public void testMetadataKeywords() {
-        FoDocument doc = new FoDocumentBuilder()
+        FoDocument doc = new FoDocumentBuilder(FoTemplates.getTemplate())
                 .withMetadataKeywords("KEYWORDS")
                 .build();
 
@@ -96,7 +94,7 @@ public class FoDocumentBuilderTest {
 
     @Test
     public void testMetadataCreator() {
-        FoDocument doc = new FoDocumentBuilder()
+        FoDocument doc = new FoDocumentBuilder(FoTemplates.getTemplate())
                 .withMetadataCreator("CREATOR")
                 .build();
 
@@ -105,7 +103,7 @@ public class FoDocumentBuilderTest {
 
     @Test
     public void testMetadataProducer() {
-        FoDocument doc = new FoDocumentBuilder()
+        FoDocument doc = new FoDocumentBuilder(FoTemplates.getTemplate())
                 .withMetadataProducer("PRODUCER")
                 .build();
 
@@ -115,7 +113,7 @@ public class FoDocumentBuilderTest {
     @Test
     public void testMetadataCreationDate() {
         ZonedDateTime now = ZonedDateTime.now();
-        FoDocument doc = new FoDocumentBuilder()
+        FoDocument doc = new FoDocumentBuilder(FoTemplates.getTemplate())
                 .withMetadataCreationDate(now)
                 .build();
 
@@ -125,7 +123,7 @@ public class FoDocumentBuilderTest {
     @Test
     public void testMetadataModificationDate() {
         ZonedDateTime now = ZonedDateTime.now();
-        FoDocument doc = new FoDocumentBuilder()
+        FoDocument doc = new FoDocumentBuilder(FoTemplates.getTemplate())
                 .withMetadataModificationDate(now)
                 .build();
 
@@ -134,7 +132,7 @@ public class FoDocumentBuilderTest {
 
     @Test
     public void testMetadataCustomPropertyDate() {
-        FoDocument doc = new FoDocumentBuilder()
+        FoDocument doc = new FoDocumentBuilder(FoTemplates.getTemplate())
                 .withMetadataCustomProperty("KEY1", "VALUE1")
                 .withMetadataCustomProperty("KEY2", "VALUE2")
                 .build();

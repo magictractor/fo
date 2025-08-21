@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import uk.co.magictractor.fo.DocIO;
 import uk.co.magictractor.fo.FoDocument;
 import uk.co.magictractor.fo.FoDocumentBuilder;
+import uk.co.magictractor.fo.FoTemplates;
 import uk.co.magictractor.fo.FoWriterBuilder;
 import uk.co.magictractor.fo.handler.FoPassthroughTransform;
 import uk.co.magictractor.fo.handler.FoPdfTransform;
@@ -38,7 +39,7 @@ public class ColorDoc {
     private static final Log LOGGER = LogFactory.getLog(ColorDoc.class);
 
     public void createDoc(ColorAttributeSetter... colorSetters) {
-        FoDocumentBuilder docBuilder = new FoDocumentBuilder()
+        FoDocumentBuilder docBuilder = new FoDocumentBuilder(FoTemplates.getTemplate())
                 .withMetadataCreationDate(ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS))
                 .withMetadataTitle("Colours");
 

@@ -17,55 +17,55 @@ package uk.co.magictractor.fo.visitor;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import org.w3c.dom.Text;
 
+import uk.co.magictractor.fo.FoDocument;
+
 public class VariableSubstitutionVisitor implements NodeVisitor {
+
+    // TODO! null or doc is pretty ugly, something more elegant should be possible
+    // revisit when looking at input and output of HTML entities
+    // https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
+    /*
+     * null for templates, substitutions should only be performed on docs when
+     * they are created
+     */
+    private final FoDocument document;
 
     private final String variableOpen;
     private final String variableClose;
 
     // Map to actions to allow more complex actions than just text substitution.
     // One possiblity would be to allow a <fo:page-number> Element to be inserted.
-    private final Map<String, SubstitutionAction> substitutionActions = new HashMap<>();
+    // private final Map<String, SubstitutionAction> substitutionActions;
+    private Map<String, Function<FoDocument, String>> replacementValueFunctions;
+
+    public VariableSubstitutionVisitor(FoDocument document, VariableSubstitutionVisitor template) {
+        this.document = document;
+        this.variableOpen = template.variableOpen;
+        this.variableClose = template.variableClose;
+        this.replacementValueFunctions = new HashMap<>(template.replacementValueFunctions);
+    }
 
     public VariableSubstitutionVisitor() {
         this("${", "}");
     }
 
     public VariableSubstitutionVisitor(String variableOpen, String variableClose) {
-//        if (variableOpen.isBlank() || variableClose.isBlank()) {
-//            throw new IllegalArgumentException();
-//        }
+        //        if (variableOpen.isBlank() || variableClose.isBlank()) {
+        //            throw new IllegalArgumentException();
+        //        }
 
+        this.document = null;
         this.variableOpen = variableOpen;
         this.variableClose = variableClose;
+        this.replacementValueFunctions = new HashMap<>();
     }
 
-    public void add(String variableName, String replacement) {
-        add(variableName, (text, beginIndex, endIndex) -> replaceWithString(text, beginIndex, endIndex, replacement));
-    }
-
-    public void add(String variableName, Supplier<String> replacementSupplier) {
-        add(variableName, (text, beginIndex, endIndex) -> replaceWithString(text, beginIndex, endIndex, replacementSupplier.get()));
-    }
-
-    private void add(String variableName, SubstitutionAction action) {
-        substitutionActions.put(variableOpen + variableName + variableClose, action);
-    }
-
-    private void replaceWithString(Text text, int beginIndex, int endIndex, String replacement) {
-        String oldData = text.getData();
-
-        StringBuilder newDataBuilder = new StringBuilder();
-        if (beginIndex > 0) {
-            newDataBuilder.append(oldData.substring(0, beginIndex));
-        }
-        newDataBuilder.append(replacement);
-        newDataBuilder.append(oldData.substring(endIndex));
-
-        text.setData(newDataBuilder.toString());
+    public void add(String variableName, Function<FoDocument, String> replacementValueFunction) {
+        replacementValueFunctions.put(variableOpen + variableName + variableClose, replacementValueFunction);
     }
 
     @Override
@@ -90,17 +90,22 @@ public class VariableSubstitutionVisitor implements NodeVisitor {
 
         String variable = data.substring(beginIndex, endIndex + variableClose.length());
 
-        SubstitutionAction action = this.substitutionActions.get(variable);
-        if (action == null) {
-            throw new IllegalStateException("No substition defined for " + variable);
+        Function<FoDocument, String> replacementValueFunction = this.replacementValueFunctions.get(variable);
+        if (replacementValueFunction == null) {
+            throw new IllegalStateException("No replacement value defined for " + variable);
         }
-        action.substitute(text, beginIndex, endIndex + variableClose.length());
-    }
+        String replacement = replacementValueFunction.apply(document);
 
-    @FunctionalInterface
-    public static interface SubstitutionAction {
-        // maybe remainderIndex can be -1??
-        void substitute(Text text, int variableIndex, int remainderIndex);
+        String oldData = text.getData();
+
+        StringBuilder newDataBuilder = new StringBuilder();
+        if (beginIndex > 0) {
+            newDataBuilder.append(oldData.substring(0, beginIndex));
+        }
+        newDataBuilder.append(replacement);
+        newDataBuilder.append(oldData.substring(endIndex + variableClose.length()));
+
+        text.setData(newDataBuilder.toString());
     }
 
 }

@@ -18,6 +18,7 @@ package uk.co.magictractor.fo.example;
 import uk.co.magictractor.fo.DocIO;
 import uk.co.magictractor.fo.FoDocument;
 import uk.co.magictractor.fo.FoDocumentBuilder;
+import uk.co.magictractor.fo.FoTemplates;
 import uk.co.magictractor.fo.FoWriter;
 import uk.co.magictractor.fo.FoWriterBuilder;
 import uk.co.magictractor.fo.handler.FoPdfTransform;
@@ -25,8 +26,8 @@ import uk.co.magictractor.fo.handler.FoPdfTransform;
 public class Example102 {
 
     public static void main(String[] args) {
-        FoDocumentBuilder docBuilder = new FoDocumentBuilder();
-        docBuilder.appendHeading(1, "First Example");
+        FoDocumentBuilder docBuilder = new FoDocumentBuilder(FoTemplates.getTemplate());
+        docBuilder.appendHeading(1, "Second Example");
         docBuilder.appendText("Some text.");
 
         // TODO! this should be implicit (end when calling build()).
