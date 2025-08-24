@@ -29,6 +29,7 @@ import uk.co.magictractor.fo.FoWriterBuilder;
 import uk.co.magictractor.fo.handler.FoPassthroughTransform;
 import uk.co.magictractor.fo.handler.FoPdfTransform;
 import uk.co.magictractor.fo.modifiers.ColorAttributeSetter;
+import uk.co.magictractor.fo.modifiers.ElementModifier;
 import uk.co.magictractor.fo.modifiers.ElementModifiers;
 
 /**
@@ -45,6 +46,8 @@ public class ColorDoc {
 
         DocIO docIO = new DocIO("colours");
 
+        appendHighlighterExample(docBuilder);
+
         for (ColorAttributeSetter colorSetter : colorSetters) {
             appendColorTable(docBuilder, colorSetter);
         }
@@ -57,6 +60,48 @@ public class ColorDoc {
         FoDocument foDoc = docBuilder.build();
 
         writerBuilder.build().dump(foDoc);
+    }
+
+    // ah, spacing is slightly changed
+    // by a) padding at start if first word is highlighted (start-indent on the para does not work around this,
+    // nor padding-left)
+    // b) with set up just right (prefix, mono font) there's a line break earlier with the line containg highlights
+    private void appendHighlighterExample(FoDocumentBuilder docBuilder) {
+        boolean prefix = false;
+        // ElementModifier pAattrs = ElementModifiers.attributeSetter("start-indent", "5px");
+        ElementModifier pAattrs = ElementModifiers.attributeSetter("padding-left", "5px", "space-after", "0pt");
+        ElementModifier hAattrs = ElementModifiers.attributeSetter();
+
+        docBuilder.startParagraph(pAattrs);
+        if (prefix) {
+            docBuilder.appendText("> ");
+        }
+        docBuilder.appendText("Yellow, pink and green highlighted text should not change text spacing.");
+        docBuilder.endParagraph();
+
+        docBuilder.startParagraph(pAattrs);
+        if (prefix) {
+            docBuilder.appendText("> ");
+        }
+        docBuilder.appendText("Yellow", hAattrs);
+        docBuilder.appendText(", ");
+        docBuilder.appendText("pink", hAattrs);
+        docBuilder.appendText(" and ");
+        docBuilder.appendText("green", hAattrs);
+        docBuilder.appendText(" highlighted text should not change text spacing.");
+        docBuilder.endParagraph();
+
+        docBuilder.startParagraph(pAattrs);
+        if (prefix) {
+            docBuilder.appendText("> ");
+        }
+        docBuilder.appendText("Yellow", ElementModifiers.highlighterPastelYellow());
+        docBuilder.appendText(", ");
+        docBuilder.appendText("pink", ElementModifiers.highlighterPastelPink());
+        docBuilder.appendText(" and ");
+        docBuilder.appendText("green", ElementModifiers.highlighterPastelGreen());
+        docBuilder.appendText(" highlighted text should not change text spacing.");
+        docBuilder.endParagraph();
     }
 
     private void appendColorTable(FoDocumentBuilder docBuilder, ColorAttributeSetter colorSetter) {

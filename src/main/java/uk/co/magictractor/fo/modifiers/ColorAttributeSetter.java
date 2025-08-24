@@ -27,6 +27,24 @@ import java.util.Arrays;
 // JavaFX
 public class ColorAttributeSetter extends AttributeSetter {
 
+    // Note that Apache FOP does not support z-index (as of 2.11)
+    // see https://xmlgraphics.apache.org/fop/compliance.html
+    // Can use transparency with a fourth colour digit, but not helpful here (maybe if colours tweaked accordingly)
+    // see https://xmlgraphics.apache.org/fop/2.11/extensions.html
+
+    // Good, but slight difference with highlighted and not (see ColourDoc), try px instead
+    // private static final String PADDING_TOP = "0.1em";
+    // private static final String PADDING_BOTTOM = "0em";
+    //  private static final String PADDING_SIDES = "0.15em";
+    // private static final String PADDING_SIDES = "2em";
+
+    private static final String PADDING_TOP = "0.15em";
+    private static final String PADDING_BOTTOM = "0.15em";
+    private static final String PADDING_SIDES = "0.3em";
+
+    private static final String PADDING = PADDING_TOP + " " + PADDING_SIDES + " " + PADDING_BOTTOM + " " + PADDING_SIDES;
+    private static final String SPACE_START_AND_END = "-" + PADDING_SIDES;
+
     //  private static final double DEFAULT_HUE_INCREMENT = 360 / 20;
     private static final double DEFAULT_INCREMENT = 1.0 / 20;
 
@@ -34,14 +52,31 @@ public class ColorAttributeSetter extends AttributeSetter {
     private Color color;
     private float[] hsb;
 
+    // TODO! bin attributeName and rename this class
     public ColorAttributeSetter(String attributeName, String attributeValue) {
-        super(attributeName, attributeValue);
+        // super(attributeName, attributeValue);
+        // colorString = attributeValue;
+        this(attributeValue);
+    }
+
+    public ColorAttributeSetter(String attributeValue) {
+        // Aah, fourth digit 00 makes it invisible, 77 dulls highlighted text and text either side if extended far enough.
+        super(false, "background-color", attributeValue,
+            // "padding-left", "0.5em",
+            // top right bottom left
+            "padding", PADDING,
+            //"border-style", "solid", "border-width", PADDING, "border-color", "#e8a7c8",
+            // "z-index", "-1",
+            // "margin-left", "-10px", "margin-left.precedence", "force",
+            "space-start", SPACE_START_AND_END, "space-end", SPACE_START_AND_END);
         colorString = attributeValue;
     }
 
+    // TODO! bin attributeName and rename this class
     public ColorAttributeSetter(String attributeName, Color color) {
-        super(attributeName, "#" + Integer.toHexString(color.getRGB() & 0xffffff));
-        colorString = "#" + Integer.toHexString(color.getRGB() & 0xffffff);
+        // super(attributeName, "#" + Integer.toHexString(color.getRGB() & 0xffffff));
+        // colorString = "#" + Integer.toHexString(color.getRGB() & 0xffffff);
+        this("#" + Integer.toHexString(color.getRGB() & 0xffffff));
     }
 
     public Color getColor() {
