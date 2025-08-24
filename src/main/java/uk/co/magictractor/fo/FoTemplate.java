@@ -15,12 +15,17 @@
  */
 package uk.co.magictractor.fo;
 
+import java.util.Map;
+
+import uk.co.magictractor.fo.modifiers.ElementModifier;
 import uk.co.magictractor.fo.visitor.VariableSubstitutionVisitor;
 
 /**
  *
  */
 public interface FoTemplate extends FoDocument {
+
+    Map<String, ElementModifier> styleModifiers();
 
     /**
      * <p>

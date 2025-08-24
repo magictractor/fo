@@ -19,10 +19,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.base.MoreObjects;
+
 import org.w3c.dom.Element;
 
 /**
- *
+ * Users should use {@link ElementModifiers#of(ElementModifier...)}.
  */
 public class CompoundElementModifier implements ElementModifier {
 
@@ -52,12 +54,18 @@ public class CompoundElementModifier implements ElementModifier {
 
         Class<? extends ElementModifier> modifierType = modifier.getClass();
         if (modifierType.equals(lastModifierType) && AttributeSetter.class.equals(modifierType)) {
-            // If the last modifier is also an AttributeSetter they can be merged.
-            // TODO! merge, for now just add
-            modifiers.add(modifier);
+            // The last modifier is also an AttributeSetter so they can be merged.
+            int lastIndex = modifiers.size() - 1;
+            AttributeSetter merged = new AttributeSetter((AttributeSetter) modifiers.get(lastIndex), (AttributeSetter) modifier);
+            modifiers.set(lastIndex, merged);
         }
         else if (NoOpElementModifier.class.equals(modifierType)) {
             // This modifier does nothing, so don't bother adding it. Do nothing.
+        }
+        else if (ResetElementModifier.class.equals(modifierType)) {
+            // This modifier discards any previous modifiers and results in a NoOp if nothing else is added.
+            modifiers.clear();
+            lastModifierType = null;
         }
         else {
             // Usual case.
@@ -67,15 +75,22 @@ public class CompoundElementModifier implements ElementModifier {
     }
 
     @Override
-    public void accept(Element element) {
+    public void modify(Element element) {
         for (ElementModifier modifier : modifiers) {
-            modifier.accept(element);
+            modifier.modify(element);
         }
     }
 
     @Override
     public boolean requiresContainer() {
         return requiresContainer;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("modifiers", modifiers)
+                .toString();
     }
 
 }

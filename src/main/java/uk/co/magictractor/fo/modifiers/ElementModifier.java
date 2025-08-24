@@ -19,8 +19,7 @@ import org.w3c.dom.Element;
 
 public interface ElementModifier {
 
-    // TODO! rename, prefer apply?
-    void accept(Element t);
+    void modify(Element t);
 
     boolean requiresContainer();
 

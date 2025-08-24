@@ -56,7 +56,7 @@ public class FoDocumentBuilder {
     //    h4_font_size: $base_font_size
     //    h5_font_size: $base_font_size_small
     //    h6_font_size: $base_font_size_min
-    private static final Map<String, ElementModifier> DEFAULT_ELEMENT_MODIFIER = new HashMap<>();
+    private static final Map<String, ElementModifier> DEFAULT_STYLE_MODIFIERS = new HashMap<>();
     //            Map.of(
     //        // space-after works here
     //        // maybe useful:
@@ -74,13 +74,17 @@ public class FoDocumentBuilder {
     //        "h5", attributeSetter("font-weight", "bold", "font-size", "90%", "keep-with-next", "always"),
     //        "h6", attributeSetter("font-weight", "bold", "font-size", "80%", "keep-with-next", "always"));
     static {
-        DEFAULT_ELEMENT_MODIFIER.put("p", attributeSetter("space-after", "8pt"));
-        DEFAULT_ELEMENT_MODIFIER.put("h1", attributeSetter("font-weight", "bold", "font-size", "150%", "keep-with-next", "always", "space-before", "20mm", "space-after", "12pt"));
-        DEFAULT_ELEMENT_MODIFIER.put("h2", attributeSetter("font-weight", "bold", "font-size", "130%", "keep-with-next", "always", "space-after", "10pt"));
-        DEFAULT_ELEMENT_MODIFIER.put("h3", attributeSetter("font-weight", "bold", "font-size", "115.5%", "keep-with-next", "always", "space-after", "5pt"));
-        DEFAULT_ELEMENT_MODIFIER.put("h4", attributeSetter("font-weight", "bold", "keep-with-next", "always", "space-after", "3pt"));
-        DEFAULT_ELEMENT_MODIFIER.put("h5", attributeSetter("font-weight", "bold", "font-size", "90%", "keep-with-next", "always"));
-        DEFAULT_ELEMENT_MODIFIER.put("h6", attributeSetter("font-weight", "bold", "font-size", "80%", "keep-with-next", "always"));
+        // TODO! and "body" to contain the default font (and anything else currently in template.fo).
+        // When to apply the body style though?
+        // Could defer applying all until using a visitor and a temporary attribute such as xmt:style="h,h1"
+        DEFAULT_STYLE_MODIFIERS.put("p", attributeSetter("space-after", "8pt"));
+        DEFAULT_STYLE_MODIFIERS.put("h", attributeSetter("font-weight", "bold", "keep-with-next", "always"));
+        DEFAULT_STYLE_MODIFIERS.put("h1", attributeSetter("font-size", "150%", "space-before", "20mm", "space-after", "12pt"));
+        DEFAULT_STYLE_MODIFIERS.put("h2", attributeSetter("font-size", "130%", "space-after", "10pt"));
+        DEFAULT_STYLE_MODIFIERS.put("h3", attributeSetter("font-size", "115.5%", "space-after", "5pt"));
+        DEFAULT_STYLE_MODIFIERS.put("h4", attributeSetter("space-after", "3pt"));
+        DEFAULT_STYLE_MODIFIERS.put("h5", attributeSetter("font-size", "90%"));
+        DEFAULT_STYLE_MODIFIERS.put("h6", attributeSetter("font-size", "80%"));
     }
 
     private Function<Document, Element> bodyFunction;
@@ -88,6 +92,7 @@ public class FoDocumentBuilder {
     private Document domDocument;
     private FoMetadataDom foMetadata;
 
+    private Map<String, ElementModifier> styleModifiers;
     private VariableSubstitutionVisitor variableSubstitutionVisitor;
 
     // Stack could/should contain more info? isImplict and info about newlines...
@@ -111,12 +116,13 @@ public class FoDocumentBuilder {
         // TODO! rework this, withDocumentResource() predates the constructors with args.
         withDocument0((Document) template.getDomDocument().cloneNode(true));
 
+        // TODO! maybe include the defaults in the template and parse them from comments
+        styleModifiers = DEFAULT_STYLE_MODIFIERS;
         if (template.getVariableSubstitutionVisitor() != null) {
             variableSubstitutionVisitor = new VariableSubstitutionVisitor(null, template.getVariableSubstitutionVisitor());
         }
         // TODO! copy indent from the template?
         foIndent = FoIndent.infer(domDocument);
-
     }
 
     /**
@@ -212,15 +218,18 @@ public class FoDocumentBuilder {
     }
 
     public FoDocument build() {
-        FoDocument document = new Template(domDocument, Collections.emptyList(), null);
-        NodeVisitor documentVisitor = new VariableSubstitutionVisitor(document, variableSubstitutionVisitor);
-        NodeVisitor.traverse(document.getDomDocument(), documentVisitor);
+        FoDocument document = new Template(domDocument, Collections.emptyList());
+
+        if (variableSubstitutionVisitor != null) {
+            NodeVisitor documentVisitor = new VariableSubstitutionVisitor(document, variableSubstitutionVisitor);
+            NodeVisitor.traverse(document.getDomDocument(), documentVisitor);
+        }
 
         return document;
     }
 
     public FoTemplate buildTemplate() {
-        return new Template(domDocument, Collections.emptyList(), variableSubstitutionVisitor);
+        return new Template(domDocument, Collections.emptyList(), styleModifiers, variableSubstitutionVisitor);
     }
 
     public Element appendHeading(int level, String text, ElementModifier... elementModifiers) {
@@ -268,7 +277,11 @@ public class FoDocumentBuilder {
         //            foBlock.setTextContent(text);
         //        }
 
-        Element result = startParagraph("h" + level, elementModifiers);
+        // Apply style "h" and then one of "h1" to "h6",
+        // "h" typically contains values common to all (or most) headings such as a sans serif font and bold.
+        // and "h1" to "h6" typically have different sizes
+        Element result = startParagraph("h", elementModifiers);
+        applyStyleModifier(result, "h" + level);
 
         // Headings should contain only a small amount of text so keep it on the same line.
         isStartOfLine = false;
@@ -321,7 +334,7 @@ public class FoDocumentBuilder {
         String name = requiresContainer ? "inline-container" : "inline";
         Element foInline = createElementNS(name, Namespace.FO);
         for (ElementModifier elementModifier : elementModifiers) {
-            elementModifier.accept(foInline);
+            elementModifier.modify(foInline);
         }
 
         append(foInline);
@@ -473,11 +486,11 @@ public class FoDocumentBuilder {
         Element foBlock = createElementNS("block", Namespace.FO);
 
         if (attributeKey != null) {
-            applyDefaultElementModification(foBlock, attributeKey);
+            applyStyleModifier(foBlock, attributeKey);
         }
 
         for (ElementModifier elementModifier : elementModifiers) {
-            elementModifier.accept(foBlock);
+            elementModifier.modify(foBlock);
         }
 
         append(foBlock);
@@ -500,15 +513,11 @@ public class FoDocumentBuilder {
         isStartOfLine = false;
     }
 
-    private void applyDefaultElementModification(Element foBlock, String attributeKey) {
-        // TODO! customise attributes
-        //        Map<String, String> attributes = DEFAULT_ATTRIBUTE_MAP.get(attributeKey);
-        //        for (Map.Entry<String, String> kv : attributes.entrySet()) {
-        //            foBlock.setAttribute(kv.getKey(), kv.getValue());
-        //        }
-
-        ElementModifier modifier = DEFAULT_ELEMENT_MODIFIER.get(attributeKey);
-        modifier.accept(foBlock);
+    private void applyStyleModifier(Element foBlock, String attributeKey) {
+        ElementModifier modifier = styleModifiers.get(attributeKey);
+        if (modifier != null) {
+            modifier.modify(foBlock);
+        }
     }
 
     // <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
@@ -587,14 +596,25 @@ public class FoDocumentBuilder {
 
         private final Document domDocument;
         private final List<URL> fontUrls;
+        private final Map<String, ElementModifier> styleModifiers;
         private final VariableSubstitutionVisitor variableSubstitutionVisitor;
 
         private FoMetadata foMetadata;
 
-        /* default */ Template(Document domDocument, List<URL> fontUrls, VariableSubstitutionVisitor variableSubstitutionVisitor) {
+        // FoTemplate constructor for buildTemplate()
+        /* default */ Template(Document domDocument, List<URL> fontUrls, Map<String, ElementModifier> styleModifiers, VariableSubstitutionVisitor variableSubstitutionVisitor) {
             this.domDocument = domDocument;
             this.fontUrls = fontUrls;
+            this.styleModifiers = styleModifiers == null ? null : Collections.unmodifiableMap(styleModifiers);
             this.variableSubstitutionVisitor = variableSubstitutionVisitor;
+        }
+
+        // FoDocument constructor for build()
+        /* default */ Template(Document domDocument, List<URL> fontUrls) {
+            this.domDocument = domDocument;
+            this.fontUrls = fontUrls;
+            this.styleModifiers = null;
+            this.variableSubstitutionVisitor = null;
         }
 
         @Override
@@ -615,6 +635,13 @@ public class FoDocumentBuilder {
             return fontUrls;
         }
 
+        // Template only
+        @Override
+        public Map<String, ElementModifier> styleModifiers() {
+            return styleModifiers;
+        }
+
+        // Template only
         @Override
         public VariableSubstitutionVisitor getVariableSubstitutionVisitor() {
             return variableSubstitutionVisitor;

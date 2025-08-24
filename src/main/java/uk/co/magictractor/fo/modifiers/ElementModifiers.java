@@ -137,7 +137,11 @@ public class ElementModifiers {
     }
 
     public static final NoOpElementModifier noOp() {
-        return getOrCreateElementModifier("noOp", () -> new NoOpElementModifier());
+        return NoOpElementModifier.INSTANCE;
+    }
+
+    public static final ResetElementModifier reset() {
+        return ResetElementModifier.INSTANCE;
     }
 
     /*

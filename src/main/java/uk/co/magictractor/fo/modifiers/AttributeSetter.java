@@ -35,12 +35,12 @@ public class AttributeSetter implements ElementModifier {
 
     protected AttributeSetter(boolean requiresContainer, String... attributes) {
         if ((attributes.length % 2) != 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("attributes must contains pairs and names and values, but has an odd number of elements");
         }
 
         this.requiresContainer = requiresContainer;
         attributeNames = new ArrayList<>(attributes.length / 2);
-        attributeValues = new ArrayList<>(attributes.length / 2);
+        attributeValues = new ArrayList<>(attributeNames.size());
 
         for (int i = 0; i < attributes.length; i += 2) {
             attributeNames.add(attributes[i]);
@@ -48,11 +48,26 @@ public class AttributeSetter implements ElementModifier {
         }
     }
 
+    protected AttributeSetter(AttributeSetter mergeA, AttributeSetter mergeB) {
+        attributeNames = new ArrayList<>(mergeA.attributeNames.size() + mergeB.attributeNames.size());
+        attributeValues = new ArrayList<>(attributeNames.size());
+        this.requiresContainer = mergeA.requiresContainer | mergeB.requiresContainer;
+
+        attributeNames.addAll(mergeA.attributeNames);
+        attributeNames.addAll(mergeB.attributeNames);
+        attributeValues.addAll(mergeA.attributeValues);
+        attributeValues.addAll(mergeB.attributeValues);
+    }
+
     @Override
-    public void accept(Element element) {
+    public void modify(Element element) {
         for (int i = 0; i < attributeNames.size(); i++) {
             element.setAttribute(attributeNames.get(i), attributeValues.get(i));
         }
+    }
+
+    public int getAttributeCount() {
+        return attributeNames.size();
     }
 
     public String getAttributeName(int index) {

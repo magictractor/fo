@@ -20,18 +20,20 @@ import com.google.common.base.MoreObjects;
 import org.w3c.dom.Element;
 
 /**
- *
+ * A special ElementModifier that discards any previous ElementModifiers when
+ * combined with them and results in a {@code NoOpElementModifier}.
  */
-public class NoOpElementModifier implements ElementModifier {
+public class ResetElementModifier implements ElementModifier {
 
-    /* default */ static NoOpElementModifier INSTANCE = new NoOpElementModifier();
+    /* default */ static ResetElementModifier INSTANCE = new ResetElementModifier();
 
-    private NoOpElementModifier() {
+    private ResetElementModifier() {
     }
 
     @Override
     public void modify(Element t) {
-        // Do nothing.
+        // This modifier results in a NoOp.
+        throw new IllegalStateException("Should never be called");
     }
 
     @Override
