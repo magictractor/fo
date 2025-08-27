@@ -19,9 +19,9 @@ import uk.co.magictractor.fo.DocIO;
 import uk.co.magictractor.fo.FoDocument;
 import uk.co.magictractor.fo.FoDocumentBuilder;
 import uk.co.magictractor.fo.FoTemplates;
-import uk.co.magictractor.fo.FoWriter;
-import uk.co.magictractor.fo.FoWriterBuilder;
 import uk.co.magictractor.fo.handler.FoPdfTransform;
+import uk.co.magictractor.fo.writer.FoWriter;
+import uk.co.magictractor.fo.writer.FoWriterBuilder;
 
 public class Example101 {
 

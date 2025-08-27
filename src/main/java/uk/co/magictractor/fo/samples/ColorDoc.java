@@ -25,7 +25,6 @@ import uk.co.magictractor.fo.DocIO;
 import uk.co.magictractor.fo.FoDocument;
 import uk.co.magictractor.fo.FoDocumentBuilder;
 import uk.co.magictractor.fo.FoTemplates;
-import uk.co.magictractor.fo.FoWriterBuilder;
 import uk.co.magictractor.fo.handler.FoAreaTreeTransform;
 import uk.co.magictractor.fo.handler.FoIntermediateFormatTransform;
 import uk.co.magictractor.fo.handler.FoPassthroughTransform;
@@ -33,6 +32,7 @@ import uk.co.magictractor.fo.handler.FoPdfTransform;
 import uk.co.magictractor.fo.handler.markup.FoAsciidocTransform;
 import uk.co.magictractor.fo.modifiers.ElementModifier;
 import uk.co.magictractor.fo.modifiers.ElementModifiers;
+import uk.co.magictractor.fo.writer.FoWriterBuilder;
 
 /**
  *

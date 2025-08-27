@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.magictractor.fo;
+package uk.co.magictractor.fo.writer;
 
 import java.net.URL;
 import java.util.List;
@@ -25,6 +25,7 @@ import javax.xml.transform.sax.SAXResult;
 
 import org.xml.sax.ContentHandler;
 
+import uk.co.magictractor.fo.FoDocument;
 import uk.co.magictractor.fo.config.FoConfig;
 import uk.co.magictractor.fo.config.FoWriterFontDetector;
 import uk.co.magictractor.fo.handler.HasLexicalHandler;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.magictractor.fo;
+package uk.co.magictractor.fo.writer;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -40,13 +40,13 @@ import org.apache.fop.render.intermediate.IFException;
 import org.apache.fop.render.intermediate.IFRenderer;
 import org.xml.sax.ContentHandler;
 
+import uk.co.magictractor.fo.DocIO;
+import uk.co.magictractor.fo.FoDocument;
 import uk.co.magictractor.fo.config.DefaultFoConfig;
 import uk.co.magictractor.fo.config.FoConfig;
 import uk.co.magictractor.fo.handler.ContentHandlerBroadcast;
 import uk.co.magictractor.fo.handler.FoTransform;
 import uk.co.magictractor.fo.handler.FoTransformOutputStreamFunction;
-import uk.co.magictractor.fo.writer.IFDocumentHandlerBroadcaster;
-import uk.co.magictractor.fo.writer.RendererBroadcaster;
 
 public class FoWriterBuilder {
 
