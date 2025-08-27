@@ -21,14 +21,14 @@ import java.util.List;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 
-public class LexicalHandlerBroadcast implements LexicalHandler {
+public class LexicalHandlerBroadcaster implements LexicalHandler {
 
     private final List<LexicalHandler> handlers = new ArrayList<>();
 
-    public LexicalHandlerBroadcast() {
+    public LexicalHandlerBroadcaster() {
     }
 
-    public LexicalHandlerBroadcast(LexicalHandler... handlers) {
+    public LexicalHandlerBroadcaster(LexicalHandler... handlers) {
         for (LexicalHandler handler : handlers) {
             addHandler(handler);
         }

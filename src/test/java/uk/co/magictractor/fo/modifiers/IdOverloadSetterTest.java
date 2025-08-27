@@ -45,7 +45,7 @@ public class IdOverloadSetterTest {
         FoWriterBuilder writerBuilder = new FoWriterBuilder();
         writerBuilder.addTransform(new FoIntermediateFormatTransform(), System.out);
 
-        writerBuilder.build().dump(foDoc);
+        writerBuilder.build().write(foDoc);
     }
     //    <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://xmlgraphics.apache.org/fop/intermediate" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:nav="http://xmlgraphics.apache.org/fop/intermediate/document-navigation" xmlns:foi="http://xmlgraphics.apache.org/fop/internal" version="2.0">
     //    <header>

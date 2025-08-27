@@ -64,7 +64,7 @@ public class ColorDoc {
 
         FoDocument foDoc = docBuilder.build();
 
-        writerBuilder.build().dump(foDoc);
+        writerBuilder.build().write(foDoc);
     }
 
     // ah, spacing is slightly changed

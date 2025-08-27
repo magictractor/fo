@@ -44,7 +44,7 @@ import uk.co.magictractor.fo.DocIO;
 import uk.co.magictractor.fo.FoDocument;
 import uk.co.magictractor.fo.config.DefaultFoConfig;
 import uk.co.magictractor.fo.config.FoConfig;
-import uk.co.magictractor.fo.handler.ContentHandlerBroadcast;
+import uk.co.magictractor.fo.handler.ContentHandlerBroadcaster;
 import uk.co.magictractor.fo.handler.FoTransform;
 import uk.co.magictractor.fo.handler.FoTransformOutputStreamFunction;
 
@@ -260,7 +260,7 @@ public class FoWriterBuilder {
             LOG.debug("Single ContentHandler of type " + contentHandler.getClass().getSimpleName());
         }
         else if (contentHandlers.size() > 1) {
-            contentHandler = new ContentHandlerBroadcast(contentHandlers);
+            contentHandler = new ContentHandlerBroadcaster(contentHandlers);
             if (LOG.isDebugEnabled()) {
                 // TODO! log the types too
                 LOG.debug("Combined " + contentHandlers.size() + " ContentHandlers");

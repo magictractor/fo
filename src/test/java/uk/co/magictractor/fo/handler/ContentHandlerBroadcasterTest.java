@@ -26,21 +26,21 @@ import org.xml.sax.ext.LexicalHandler;
 import uk.co.magictractor.fo.mockito.ContentAndLexicalHandler;
 import uk.co.magictractor.fo.mockito.MockitoExtension;
 
-public class ContentHandlerBroadcastTest {
+public class ContentHandlerBroadcasterTest {
 
     @RegisterExtension
     public MockitoExtension mockitoExtension = new MockitoExtension();
 
     @Test
     public void testLexicalHandlers_empty() throws Exception {
-        ContentHandlerBroadcast handler = new ContentHandlerBroadcast();
+        ContentHandlerBroadcaster handler = new ContentHandlerBroadcaster();
 
         assertThat(handler.getLexicalHandler()).isNull();
     }
 
     @Test
     public void testLexicalHandlers_onlyContentHandler() throws Exception {
-        ContentHandlerBroadcast handler = new ContentHandlerBroadcast();
+        ContentHandlerBroadcaster handler = new ContentHandlerBroadcaster();
 
         ContentHandler child1 = mockitoExtension.mock(ContentHandler.class);
         handler.addHandler(child1);
@@ -50,7 +50,7 @@ public class ContentHandlerBroadcastTest {
 
     @Test
     public void testLexicalHandlers_one() throws Exception {
-        ContentHandlerBroadcast handler = new ContentHandlerBroadcast();
+        ContentHandlerBroadcaster handler = new ContentHandlerBroadcaster();
 
         ContentAndLexicalHandler child1 = mockitoExtension.mock(ContentAndLexicalHandler.class);
         handler.addHandler(child1);
@@ -64,14 +64,14 @@ public class ContentHandlerBroadcastTest {
 
     @Test
     public void testLexicalHandlers_two() throws Exception {
-        ContentHandlerBroadcast handler = new ContentHandlerBroadcast();
+        ContentHandlerBroadcaster handler = new ContentHandlerBroadcaster();
 
         ContentAndLexicalHandler child1 = mockitoExtension.mock(ContentAndLexicalHandler.class);
         handler.addHandler(child1);
         ContentAndLexicalHandler child2 = mockitoExtension.mock(ContentAndLexicalHandler.class);
         handler.addHandler(child2);
 
-        assertThat(handler.getLexicalHandler()).isExactlyInstanceOf(LexicalHandlerBroadcast.class);
+        assertThat(handler.getLexicalHandler()).isExactlyInstanceOf(LexicalHandlerBroadcaster.class);
 
         char[] ch = "test".toCharArray();
         handler.getLexicalHandler().comment(ch, 0, ch.length);
@@ -81,7 +81,7 @@ public class ContentHandlerBroadcastTest {
 
     @Test
     public void testLexicalHandlers_three() throws Exception {
-        ContentHandlerBroadcast handler = new ContentHandlerBroadcast();
+        ContentHandlerBroadcaster handler = new ContentHandlerBroadcaster();
 
         ContentAndLexicalHandler child1 = mockitoExtension.mock(ContentAndLexicalHandler.class);
         handler.addHandler(child1);
@@ -90,7 +90,7 @@ public class ContentHandlerBroadcastTest {
         ContentAndLexicalHandler child3 = mockitoExtension.mock(ContentAndLexicalHandler.class);
         handler.addHandler(child3);
 
-        assertThat(handler.getLexicalHandler()).isExactlyInstanceOf(LexicalHandlerBroadcast.class);
+        assertThat(handler.getLexicalHandler()).isExactlyInstanceOf(LexicalHandlerBroadcaster.class);
 
         char[] ch = "test".toCharArray();
         handler.getLexicalHandler().comment(ch, 0, ch.length);
@@ -101,9 +101,9 @@ public class ContentHandlerBroadcastTest {
 
     @Test
     public void testLexicalHandlers_hasLexicalHandler() throws Exception {
-        ContentHandlerBroadcast handler = new ContentHandlerBroadcast();
+        ContentHandlerBroadcaster handler = new ContentHandlerBroadcaster();
 
-        ContentHandlerBroadcast child1 = new ContentHandlerBroadcast();
+        ContentHandlerBroadcaster child1 = new ContentHandlerBroadcaster();
 
         ContentAndLexicalHandler grandChild1 = mockitoExtension.mock(ContentAndLexicalHandler.class);
         child1.addHandler(grandChild1);
@@ -123,9 +123,9 @@ public class ContentHandlerBroadcastTest {
 
     @Test
     public void testLexicalHandlers_hasLexicalHandlerDeferred() throws Exception {
-        ContentHandlerBroadcast handler = new ContentHandlerBroadcast();
+        ContentHandlerBroadcaster handler = new ContentHandlerBroadcaster();
 
-        ContentHandlerBroadcast child1 = new ContentHandlerBroadcast();
+        ContentHandlerBroadcaster child1 = new ContentHandlerBroadcaster();
         handler.addHandler(child1);
 
         // Note the different order from the previous test.

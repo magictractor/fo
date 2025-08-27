@@ -33,7 +33,7 @@ import uk.co.magictractor.fo.handler.HasLexicalHandler;
 /**
  * Instances of {@code FoWriter} are usually created using
  * {@code FoWriterBuilder} but the constructors are public so that the use of
- * builders is not mandatory.
+ * the builder is not mandatory.
  */
 public class FoWriter {
 
@@ -45,9 +45,7 @@ public class FoWriter {
         this.contentHandlerFunction = contentHandlerFunction;
     }
 
-    // TODO! move to writer package
-    // TODO! rename this method to write()
-    public void dump(FoDocument foDocument) {
+    public void write(FoDocument foDocument) {
         List<URL> fontUrls = foDocument.getFontUrls();
         if (fontUrls == null || fontUrls.isEmpty()) {
             write0(foDocument);

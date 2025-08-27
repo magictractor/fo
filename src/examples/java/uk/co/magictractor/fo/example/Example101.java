@@ -38,7 +38,7 @@ public class Example101 {
         writerBuilder.addTransform(new FoPdfTransform(), new DocIO(Example101.class.getSimpleName()));
 
         FoWriter writer = writerBuilder.build();
-        writer.dump(doc);
+        writer.write(doc);
     }
 
 }

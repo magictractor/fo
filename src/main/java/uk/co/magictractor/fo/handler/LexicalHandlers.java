@@ -33,16 +33,16 @@ public final class LexicalHandlers {
             return handler1;
         }
 
-        if (handler2 instanceof LexicalHandlerBroadcast) {
+        if (handler2 instanceof LexicalHandlerBroadcaster) {
             throw new IllegalArgumentException();
         }
 
-        if (handler1 instanceof LexicalHandlerBroadcast) {
-            ((LexicalHandlerBroadcast) handler1).addHandler(handler2);
+        if (handler1 instanceof LexicalHandlerBroadcaster) {
+            ((LexicalHandlerBroadcaster) handler1).addHandler(handler2);
             return handler1;
         }
         else {
-            return new LexicalHandlerBroadcast(handler1, handler2);
+            return new LexicalHandlerBroadcaster(handler1, handler2);
         }
     }
 

@@ -121,7 +121,7 @@ public class IFDocumentHandlerBroadcaster implements IFDocumentHandler {
             configurators.add(handler.getConfigurator());
         }
 
-        return new IFDocumentHandlerConfiguratorBroadcast(configurators);
+        return new IFDocumentHandlerConfiguratorBroadcaster(configurators);
     }
 
     @Override

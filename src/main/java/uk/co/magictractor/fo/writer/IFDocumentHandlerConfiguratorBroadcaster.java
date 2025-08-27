@@ -24,11 +24,11 @@ import org.apache.fop.fonts.FontInfo;
 import org.apache.fop.render.intermediate.IFDocumentHandler;
 import org.apache.fop.render.intermediate.IFDocumentHandlerConfigurator;
 
-public class IFDocumentHandlerConfiguratorBroadcast implements IFDocumentHandlerConfigurator {
+public class IFDocumentHandlerConfiguratorBroadcaster implements IFDocumentHandlerConfigurator {
 
     private final List<IFDocumentHandlerConfigurator> configurators;
 
-    public IFDocumentHandlerConfiguratorBroadcast(List<IFDocumentHandlerConfigurator> configurators) {
+    public IFDocumentHandlerConfiguratorBroadcaster(List<IFDocumentHandlerConfigurator> configurators) {
         this.configurators = configurators;
     }
 

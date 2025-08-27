@@ -36,7 +36,7 @@ import org.xml.sax.ext.LexicalHandler;
  * single transform of a XSL-FO document.
  * </p>
  */
-public class ContentHandlerBroadcast implements ContentHandler, HasLexicalHandler {
+public class ContentHandlerBroadcaster implements ContentHandler, HasLexicalHandler {
 
     private final List<ContentHandler> handlers = new ArrayList<>();
 
@@ -45,10 +45,10 @@ public class ContentHandlerBroadcast implements ContentHandler, HasLexicalHandle
     private boolean buildLexicalHandlerOnDemand;
     private LexicalHandler lexicalHandler;
 
-    public ContentHandlerBroadcast() {
+    public ContentHandlerBroadcaster() {
     }
 
-    public ContentHandlerBroadcast(List<ContentHandler> handlers) {
+    public ContentHandlerBroadcaster(List<ContentHandler> handlers) {
         for (ContentHandler handler : handlers) {
             addHandler(handler);
         }
