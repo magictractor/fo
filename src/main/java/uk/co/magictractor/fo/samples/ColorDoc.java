@@ -26,9 +26,11 @@ import uk.co.magictractor.fo.FoDocument;
 import uk.co.magictractor.fo.FoDocumentBuilder;
 import uk.co.magictractor.fo.FoTemplates;
 import uk.co.magictractor.fo.FoWriterBuilder;
+import uk.co.magictractor.fo.handler.FoAreaTreeTransform;
+import uk.co.magictractor.fo.handler.FoIntermediateFormatTransform;
 import uk.co.magictractor.fo.handler.FoPassthroughTransform;
 import uk.co.magictractor.fo.handler.FoPdfTransform;
-import uk.co.magictractor.fo.modifiers.ColorAttributeSetter;
+import uk.co.magictractor.fo.handler.markup.FoAsciidocTransform;
 import uk.co.magictractor.fo.modifiers.ElementModifier;
 import uk.co.magictractor.fo.modifiers.ElementModifiers;
 
@@ -39,7 +41,7 @@ public class ColorDoc {
 
     private static final Log LOGGER = LogFactory.getLog(ColorDoc.class);
 
-    public void createDoc(ColorAttributeSetter... colorSetters) {
+    public void createDoc(ElementModifier... colorSetters) {
         FoDocumentBuilder docBuilder = new FoDocumentBuilder(FoTemplates.getTemplate())
                 .withMetadataCreationDate(ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS))
                 .withMetadataTitle("Colours");
@@ -48,13 +50,16 @@ public class ColorDoc {
 
         appendHighlighterExample(docBuilder);
 
-        for (ColorAttributeSetter colorSetter : colorSetters) {
+        for (ElementModifier colorSetter : colorSetters) {
             appendColorTable(docBuilder, colorSetter);
         }
 
         FoWriterBuilder writerBuilder = new FoWriterBuilder();
         writerBuilder.addTransform(new FoPassthroughTransform(), docIO);
         writerBuilder.addTransform(new FoPdfTransform(), docIO);
+        writerBuilder.addTransform(new FoAsciidocTransform(), docIO);
+        writerBuilder.addTransform(new FoAreaTreeTransform(), docIO);
+        writerBuilder.addTransform(new FoIntermediateFormatTransform(), docIO);
         writerBuilder.addTransform(new FoPassthroughTransform(), System.out);
 
         FoDocument foDoc = docBuilder.build();
@@ -104,7 +109,7 @@ public class ColorDoc {
         docBuilder.endParagraph();
     }
 
-    private void appendColorTable(FoDocumentBuilder docBuilder, ColorAttributeSetter colorSetter) {
+    private void appendColorTable(FoDocumentBuilder docBuilder, ElementModifier colorSetter) {
         // docBuilder.sta
     }
 

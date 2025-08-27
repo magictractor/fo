@@ -18,8 +18,6 @@ package uk.co.magictractor.fo.handler.markup;
 import java.io.OutputStream;
 
 import org.apache.fop.apps.FOUserAgent;
-import org.apache.fop.apps.FopFactory;
-import org.xml.sax.ContentHandler;
 
 import uk.co.magictractor.fo.handler.FoTransform;
 
@@ -29,7 +27,7 @@ import uk.co.magictractor.fo.handler.FoTransform;
 public class FoAsciidocTransform implements FoTransform {
 
     @Override
-    public ContentHandler createHandler(OutputStream out, FopFactory fopFactory, FOUserAgent userAgent) {
+    public Object createHandler(OutputStream out, FOUserAgent userAgent) {
         return new MarkupHandlerAdapter(new FoAsciidocHandler(out));
     }
 
@@ -37,11 +35,6 @@ public class FoAsciidocTransform implements FoTransform {
     @Override
     public String fileExtension() {
         return ".adoc";
-    }
-
-    @Override
-    public String mimeType() {
-        return "text/asciidoc";
     }
 
 }

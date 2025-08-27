@@ -403,7 +403,7 @@ public class FoDocumentBuilder {
     public Element startBlock(ElementModifier... elementModifiers) {
         if (isParagraph) {
             // This might change in future?
-            throw new IllegalStateException("Explicit blocks are expected to wrap paragraphs.");
+            // throw new IllegalStateException("Explicit blocks are expected to wrap paragraphs.");
         }
 
         return pushBlock(null, elementModifiers);

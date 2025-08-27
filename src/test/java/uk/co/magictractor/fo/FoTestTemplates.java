@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Ken Dobson
+ * Copyright 2025 Ken Dobson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.magictractor.fo.handler;
-
-import java.io.OutputStream;
-
-import org.apache.fop.apps.FOUserAgent;
-import org.apache.fop.render.pdf.PDFDocumentHandlerMaker;
+package uk.co.magictractor.fo;
 
 /**
  *
  */
-public class FoPdfTransform implements FoTransform {
+public final class FoTestTemplates {
 
-    @Override
-    public Object createHandler(OutputStream out, FOUserAgent userAgent) {
-        return new PDFDocumentHandlerMaker();
+    private FoTestTemplates() {
     }
 
-    @Override
-    public String fileExtension() {
-        return ".pdf";
+    private static FoTemplate template;
+
+    public static FoTemplate getTemplate() {
+        if (template == null) {
+            template = buildTemplate();
+        }
+        return template;
+    }
+
+    private static FoTemplate buildTemplate() {
+        return new FoDocumentBuilder("minimal_template.fo")
+                .buildTemplate();
     }
 
 }

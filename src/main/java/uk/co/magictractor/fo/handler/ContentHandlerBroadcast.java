@@ -45,6 +45,17 @@ public class ContentHandlerBroadcast implements ContentHandler, HasLexicalHandle
     private boolean buildLexicalHandlerOnDemand;
     private LexicalHandler lexicalHandler;
 
+    public ContentHandlerBroadcast() {
+    }
+
+    public ContentHandlerBroadcast(List<ContentHandler> handlers) {
+        for (ContentHandler handler : handlers) {
+            addHandler(handler);
+        }
+    }
+
+    // TODO! bin this and just use the List constructor.
+    @Deprecated
     public void addHandler(ContentHandler handler) {
         handlers.add(handler);
         if (!buildLexicalHandlerOnDemand) {

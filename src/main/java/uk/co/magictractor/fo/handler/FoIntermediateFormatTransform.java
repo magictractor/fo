@@ -18,21 +18,19 @@ package uk.co.magictractor.fo.handler;
 import java.io.OutputStream;
 
 import org.apache.fop.apps.FOUserAgent;
-import org.apache.fop.render.pdf.PDFDocumentHandlerMaker;
+import org.apache.fop.render.intermediate.IFSerializerMaker;
 
-/**
- *
- */
-public class FoPdfTransform implements FoTransform {
+// https://xmlgraphics.apache.org/fop/1.0/intermediate.html
+public class FoIntermediateFormatTransform implements FoTransform {
 
     @Override
     public Object createHandler(OutputStream out, FOUserAgent userAgent) {
-        return new PDFDocumentHandlerMaker();
+        return new IFSerializerMaker();
     }
 
     @Override
     public String fileExtension() {
-        return ".pdf";
+        return ".if";
     }
 
 }

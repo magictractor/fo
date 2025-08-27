@@ -18,36 +18,36 @@ package uk.co.magictractor.fo.handler;
 import java.io.OutputStream;
 
 import org.apache.fop.apps.FOUserAgent;
-import org.apache.fop.apps.FopFactory;
-import org.xml.sax.ContentHandler;
 
 /**
  *
  */
 public interface FoTransform {
 
-    // UserAgent may contain metadata such as the document title.
-    ContentHandler createHandler(OutputStream out, FopFactory fopFactory, FOUserAgent userAgent);
+    // IFDocumentHandler can be used with IFUtil.setUpFonts() and IFSerrializer.mimicDocumentHandler()
+    // IFDocumentHandler createDocumentHandler(OutputStream out, FopFactory fopFactory, FOUserAgent userAgent);
+    // TUESDAY! maybe return an Object and check it's one of IFDocumentHandler or Renderer (via AreaTreeHandler)
+    // but both could be pre or post transform
+    // so want four similar observables that Renderers and IFDocumentHandlers can be hooked on to.
+    // fewer than four (min two) if no transforms are being done.
+    // First is a custom renderer attached to an AreaTreeModel.
+    // Second
+    // Last two are IFRenderers, can add IFDocumentHandlers to them.
+    // TODO! how to configure the output for a Renderer. ah, need to call startRenderer()
+    // TODO! and what closes the stream?
+    // Ah! could also return a ContentHandler to view the input from the DOMDocument
+    // TODO! not default, that's only for migration of existing transforms
+    Object createHandler(OutputStream out, FOUserAgent userAgent);
 
     /**
      * <p>
      * A file extension typically associated with transformed output. Users may
-     * chose to use a different extension.
+     * choose to use a different extension.
      * </p>
      * <p>
      * The extension must include a leading dot.
      * </p>
      */
     String fileExtension();
-
-    /**
-     * <p>
-     * A mime type associated with transformed output.
-     * </p>
-     */
-    // Note: text/asciidoc
-    // see https://discuss.asciidoctor.org/Mimetype-for-Asciidoc-td211.html
-    // and https://docs.asciidoctor.org/asciidoc/latest/faq/#whats-the-media-type-aka-mime-type-for-asciidoc
-    String mimeType();
 
 }

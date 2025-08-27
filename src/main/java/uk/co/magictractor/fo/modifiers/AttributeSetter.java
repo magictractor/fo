@@ -20,12 +20,16 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
+import uk.co.magictractor.fo.Namespace;
+
 /**
  * Sets attributes on an {@code Element}.
  */
 public class AttributeSetter implements ElementModifier {
 
+    // hmm alos want to support qualified names
     private final boolean requiresContainer;
+    private final List<Namespace> attributeNamespaces;
     private final List<String> attributeNames;
     private final List<String> attributeValues;
 
@@ -34,25 +38,36 @@ public class AttributeSetter implements ElementModifier {
     }
 
     protected AttributeSetter(boolean requiresContainer, String... attributes) {
+        this(requiresContainer, null, attributes);
+    }
+
+    protected AttributeSetter(boolean requiresContainer, Namespace namespace, String... attributes) {
         if ((attributes.length % 2) != 0) {
             throw new IllegalArgumentException("attributes must contains pairs and names and values, but has an odd number of elements");
         }
 
         this.requiresContainer = requiresContainer;
-        attributeNames = new ArrayList<>(attributes.length / 2);
-        attributeValues = new ArrayList<>(attributeNames.size());
+        int size = attributes.length / 2;
+        attributeNamespaces = new ArrayList<>(size);
+        attributeNames = new ArrayList<>(size);
+        attributeValues = new ArrayList<>(size);
 
         for (int i = 0; i < attributes.length; i += 2) {
+            attributeNamespaces.add(namespace);
             attributeNames.add(attributes[i]);
             attributeValues.add(attributes[i + 1]);
         }
     }
 
     protected AttributeSetter(AttributeSetter mergeA, AttributeSetter mergeB) {
-        attributeNames = new ArrayList<>(mergeA.attributeNames.size() + mergeB.attributeNames.size());
-        attributeValues = new ArrayList<>(attributeNames.size());
+        int size = mergeA.attributeNames.size() + mergeB.attributeNames.size();
+        attributeNamespaces = new ArrayList<>(size);
+        attributeNames = new ArrayList<>(size);
+        attributeValues = new ArrayList<>(size);
         this.requiresContainer = mergeA.requiresContainer | mergeB.requiresContainer;
 
+        attributeNamespaces.addAll(mergeA.attributeNamespaces);
+        attributeNamespaces.addAll(mergeB.attributeNamespaces);
         attributeNames.addAll(mergeA.attributeNames);
         attributeNames.addAll(mergeB.attributeNames);
         attributeValues.addAll(mergeA.attributeValues);
@@ -62,7 +77,13 @@ public class AttributeSetter implements ElementModifier {
     @Override
     public void modify(Element element) {
         for (int i = 0; i < attributeNames.size(); i++) {
-            element.setAttribute(attributeNames.get(i), attributeValues.get(i));
+            if (attributeNamespaces.get(i) == null) {
+                element.setAttribute(attributeNames.get(i), attributeValues.get(i));
+            }
+            else {
+                Namespace namespace = attributeNamespaces.get(i);
+                element.setAttributeNS(namespace.getUri(), namespace.getPrefix() + ":" + attributeNames.get(i), attributeValues.get(i));
+            }
         }
     }
 

@@ -44,6 +44,8 @@ public class FoWriter {
         this.contentHandlerFunction = contentHandlerFunction;
     }
 
+    // TODO! move to writer package
+    // TODO! rename this method to write()
     public void dump(FoDocument foDocument) {
         List<URL> fontUrls = foDocument.getFontUrls();
         if (fontUrls == null || fontUrls.isEmpty()) {

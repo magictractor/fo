@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import uk.co.magictractor.fo.Namespace;
+
 /**
  *
  */
@@ -63,6 +65,13 @@ public class ElementModifiers {
 
     public static final AttributeSetter attributeSetter(String... keysAndValues) {
         return new AttributeSetter(keysAndValues);
+    }
+
+    public static final AttributeSetter attributeSetterNS(Namespace namespace, String... keysAndValues) {
+        if (namespace == null) {
+            throw new IllegalArgumentException();
+        }
+        return new AttributeSetter(false, namespace, keysAndValues);
     }
 
     public static final AttributeSetter attributeSetterRequiresContainer(String... keysAndValues) {
@@ -151,28 +160,34 @@ public class ElementModifiers {
      */
     // TODO! add methods for lighter/darker??
 
-    public static final ColorAttributeSetter highlighterPastelGreen() {
-        return getOrCreateElementModifier("highlighterPastelGreen", () -> new ColorAttributeSetter("background-color", "#a7e8c8"));
+    public static final ElementModifier highlighterPastelGreen() {
+        return getOrCreateElementModifier("highlighterPastelGreen", () -> createHighlighter("#a7e8c8"));
     }
 
-    public static final ColorAttributeSetter highlighterPastelOrange() {
-        return getOrCreateElementModifier("highlighterPastelOrange", () -> new ColorAttributeSetter("background-color", "#f8b6a8"));
+    public static final ElementModifier highlighterPastelOrange() {
+        return getOrCreateElementModifier("highlighterPastelOrange", () -> createHighlighter("#f8b6a8"));
     }
 
-    public static final ColorAttributeSetter highlighterPastelYellow() {
-        return getOrCreateElementModifier("highlighterPastelYellow", () -> new ColorAttributeSetter("background-color", "#fdffb4"));
+    public static final ElementModifier highlighterPastelYellow() {
+        return getOrCreateElementModifier("highlighterPastelYellow", () -> createHighlighter("#fdffb4"));
     }
 
-    public static final ColorAttributeSetter highlighterPastelPink() {
-        return getOrCreateElementModifier("highlighterPastelPink", () -> new ColorAttributeSetter("background-color", "#f7c2d6"));
+    public static final ElementModifier highlighterPastelPink() {
+        return getOrCreateElementModifier("highlighterPastelPink", () -> createHighlighter("#f7c2d6"));
     }
 
-    public static final ColorAttributeSetter highlighterPastelViolet() {
-        return getOrCreateElementModifier("highlighterPastelViolet", () -> new ColorAttributeSetter("background-color", "#c3bbec"));
+    public static final ElementModifier highlighterPastelViolet() {
+        return getOrCreateElementModifier("highlighterPastelViolet", () -> createHighlighter("#c3bbec"));
     }
 
-    public static final ColorAttributeSetter highlighterPastelBlue() {
-        return getOrCreateElementModifier("highlighterPastelBlue", () -> new ColorAttributeSetter("background-color", "#c3effc"));
+    public static final ElementModifier highlighterPastelBlue() {
+        return getOrCreateElementModifier("highlighterPastelBlue", () -> createHighlighter("#c3effc"));
+    }
+
+    private static final ElementModifier createHighlighter(String colour) {
+        // return new ColorAttributeSetter("background-color", colour).andThen(ElementModifiers.attributeSetterNS(Namespace.MTX, "highlighter", colour));
+        // TODO! pass in dimensions rather than colour to the id?
+        return new AttributeSetter("background-color", colour).andThen(new IdOverloadSetter("highlight", colour));
     }
 
     private ElementModifiers() {

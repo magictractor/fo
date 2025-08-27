@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<fo:root font-family="serif" font-size="11pt" xmlns:fo="http://www.w3.org/1999/XSL/Format" language="en">
+    <fo:layout-master-set>
+        <fo:simple-page-master margin-bottom="7mm" margin-left="25mm" margin-right="12mm" margin-top="12mm" master-name="page-a4" page-height="297mm" page-width="210mm">
+            <fo:region-body margin-bottom="15pt"/>
+        </fo:simple-page-master>
+    </fo:layout-master-set>
+
+    <fo:page-sequence master-reference="page-a4">
+        <fo:flow flow-name="xsl-region-body">
+        </fo:flow>
+    </fo:page-sequence>
+</fo:root>

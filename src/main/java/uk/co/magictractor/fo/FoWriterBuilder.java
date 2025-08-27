@@ -18,14 +18,26 @@ package uk.co.magictractor.fo;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.event.LoggingEventListener;
 import org.apache.fop.events.Event;
 import org.apache.fop.events.EventListener;
+import org.apache.fop.fo.FOTreeBuilder;
+import org.apache.fop.render.AbstractRendererMaker;
+import org.apache.fop.render.Renderer;
+import org.apache.fop.render.intermediate.AbstractIFDocumentHandlerMaker;
+import org.apache.fop.render.intermediate.IFContext;
+import org.apache.fop.render.intermediate.IFDocumentHandler;
+import org.apache.fop.render.intermediate.IFException;
+import org.apache.fop.render.intermediate.IFRenderer;
 import org.xml.sax.ContentHandler;
 
 import uk.co.magictractor.fo.config.DefaultFoConfig;
@@ -33,8 +45,12 @@ import uk.co.magictractor.fo.config.FoConfig;
 import uk.co.magictractor.fo.handler.ContentHandlerBroadcast;
 import uk.co.magictractor.fo.handler.FoTransform;
 import uk.co.magictractor.fo.handler.FoTransformOutputStreamFunction;
+import uk.co.magictractor.fo.writer.IFDocumentHandlerBroadcaster;
+import uk.co.magictractor.fo.writer.RendererBroadcaster;
 
 public class FoWriterBuilder {
+
+    private static final Log LOG = LogFactory.getLog(FoWriterBuilder.class);
 
     private static final EventListener DEFAULT_EVENT_LISTENER = new LoggingEventListener();
 
@@ -43,7 +59,7 @@ public class FoWriterBuilder {
     private final List<EventListener> eventListeners = new ArrayList<>();
 
     private final List<TransformInfo> transforms = new ArrayList<>();
-    private BiFunction<FoDocument, ContentHandler, ContentHandler> filterFunction;
+    // private BiFunction<FoDocument, ContentHandler, ContentHandler> filterFunction;
 
     /**
      * Flag indicating whether the ContentHandler depends on the document. The
@@ -63,26 +79,28 @@ public class FoWriterBuilder {
         transforms.add(new TransformInfo(transform, FoTransformOutputStreamFunction.forOutputStream(out)));
     }
 
-    public FoWriterBuilder addFilter(Function<ContentHandler, ContentHandler> filterFunction) {
-        addFilter0((d, h) -> filterFunction.apply(h));
-        return this;
-    }
-
-    public FoWriterBuilder addFilter(BiFunction<FoDocument, ContentHandler, ContentHandler> filterFunction) {
-        isDocumentDependent = true;
-        addFilter0(filterFunction);
-        return this;
-    }
-
-    private void addFilter0(BiFunction<FoDocument, ContentHandler, ContentHandler> filterFunction) {
-        if (this.filterFunction == null) {
-            this.filterFunction = filterFunction;
-        }
-        else {
-            //  this.filterFunction = this.filterFunction.andThen(filterFunction);
-            this.filterFunction = (d, h) -> filterFunction.apply(d, this.filterFunction.apply(d, h));
-        }
-    }
+    // what is being filtered here?
+    // ah, this was initially used for variable substitutions?
+    //    public FoWriterBuilder addFilter(Function<ContentHandler, ContentHandler> filterFunction) {
+    //        addFilter0((d, h) -> filterFunction.apply(h));
+    //        return this;
+    //    }
+    //
+    //    public FoWriterBuilder addFilter(BiFunction<FoDocument, ContentHandler, ContentHandler> filterFunction) {
+    //        isDocumentDependent = true;
+    //        addFilter0(filterFunction);
+    //        return this;
+    //    }
+    //
+    //    private void addFilter0(BiFunction<FoDocument, ContentHandler, ContentHandler> filterFunction) {
+    //        if (this.filterFunction == null) {
+    //            this.filterFunction = filterFunction;
+    //        }
+    //        else {
+    //            //  this.filterFunction = this.filterFunction.andThen(filterFunction);
+    //            this.filterFunction = (d, h) -> filterFunction.apply(d, this.filterFunction.apply(d, h));
+    //        }
+    //    }
 
     /**
      * <p>
@@ -115,6 +133,7 @@ public class FoWriterBuilder {
             contentHandlerFunction = this::getReusableContentHandler;
         }
 
+        //
         return new FoWriter(foConfig, contentHandlerFunction);
     }
 
@@ -132,32 +151,132 @@ public class FoWriterBuilder {
     }
 
     private ContentHandler buildContentHandler(FoDocument foDocument) {
+        try {
+            return buildContentHandler0(foDocument);
+        }
+        catch (FOPException | IFException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private ContentHandler buildContentHandler0(FoDocument foDocument) throws FOPException, IFException {
         FOUserAgent userAgent = buildUserAgent(foDocument);
+        IFContext ifContext = new IFContext(userAgent);
 
-        ContentHandler result;
+        // ContentHandlers are attached to the XSL-FO XML.
+        // Usually one to create the area tree, and maybe another to capture the XSL-FO.
+        List<ContentHandler> contentHandlers = new ArrayList<>();
+        // ContentHandlers are attached to the area tree.
+        List<Renderer> preTransformRenderers = new ArrayList<>();
+        List<Renderer> renderers = new ArrayList<>();
+        List<OutputStream> rendererOutputStreams = new ArrayList<>();
+        // ContentHandlers are attached to the intermediate format.
+        List<IFDocumentHandler> preTransformDocumentHandlers = new ArrayList<>();
+        List<IFDocumentHandler> documentHandlers = new ArrayList<>();
 
-        // verify() has already checked for empty
-        if (transforms.size() == 1) {
-            result = buildTransformHandler(transforms.get(0), foDocument, userAgent);
+        for (TransformInfo transformInfo : transforms) {
+            FoTransform transform = transformInfo.foTransform;
+            OutputStream out = transformInfo.outputStreamFunction.newOutputStream(transformInfo.foTransform, foDocument);
+            Object handler = transform.createHandler(out, userAgent);
+
+            // TODO! pre transform needs a boolean on the transform
+            if (handler instanceof AbstractIFDocumentHandlerMaker) {
+                AbstractIFDocumentHandlerMaker maker = (AbstractIFDocumentHandlerMaker) handler;
+                IFDocumentHandler documentHandler = maker.makeIFDocumentHandler(ifContext);
+                documentHandler.setResult(new StreamResult(out));
+                documentHandlers.add(documentHandler);
+            }
+            else if (handler instanceof IFDocumentHandler) {
+                IFDocumentHandler documentHandler = (IFDocumentHandler) handler;
+                documentHandler.setResult(new StreamResult(out));
+                documentHandlers.add(documentHandler);
+            }
+            else if (handler instanceof Renderer) {
+                Renderer renderer = (Renderer) handler;
+                renderers.add(renderer);
+                rendererOutputStreams.add(out);
+            }
+            else if (handler instanceof AbstractRendererMaker) {
+                AbstractRendererMaker maker = (AbstractRendererMaker) handler;
+                Renderer renderer = maker.makeRenderer(userAgent);
+                maker.configureRenderer(userAgent, renderer);
+                renderers.add(renderer);
+                rendererOutputStreams.add(out);
+            }
+            else if (handler instanceof ContentHandler) {
+                ContentHandler contentHandler = (ContentHandler) handler;
+                contentHandlers.add(contentHandler);
+            }
+            else {
+                String msg = "Cannot use a handler of type " + handler.getClass().getCanonicalName()
+                        + " from " + transform.getClass().getSimpleName() + " .createHandler(UserAgent)";
+                throw new IllegalStateException(msg);
+            }
+        }
+
+        IFDocumentHandler documentHandler = null;
+        if (documentHandlers.size() > 1) {
+            documentHandler = new IFDocumentHandlerBroadcaster(documentHandlers);
+        }
+        else if (documentHandlers.size() == 1) {
+            // TODO! do not wrap with broadcast, but it's handy during development
+            // TODO! rename these to "Broadcaster"?
+            // documentHandler = new IFDocumentHandlerBroadcast(documentHandlers);
+            documentHandler = documentHandlers.get(0);
         }
         else {
-            ContentHandlerBroadcast handlers = new ContentHandlerBroadcast();
-            for (TransformInfo transformInfo : transforms) {
-                ContentHandler handler = buildTransformHandler(transformInfo, foDocument, userAgent);
-                handlers.addHandler(handler);
+            // Empty
+            // Could get this if only capturing the area tree.
+            LOG.debug("There are no IFDocumentHandlers");
+        }
+
+        if (documentHandler != null) {
+            IFRenderer ifRenderer = new IFRenderer(userAgent);
+            ifRenderer.setDocumentHandler(documentHandler);
+            // TODO! mimic would be on IFSerializer.
+            // ifRenderer.mim
+            renderers.add(ifRenderer);
+            rendererOutputStreams.add(null);
+        }
+
+        Renderer renderer = null;
+        if (renderers.size() > 1) {
+            renderer = new RendererBroadcaster(renderers, rendererOutputStreams);
+        }
+        else if (renderers.size() == 1) {
+            renderer = renderers.get(0);
+        }
+
+        if (renderer != null) {
+            // new FOTreeBuilder(outputFormat, foUserAgent, stream);
+            userAgent.setRendererOverride(renderer);
+            ContentHandler areaTreeHandler = new FOTreeBuilder(null, userAgent, null);
+            contentHandlers.add(areaTreeHandler);
+        }
+
+        ContentHandler contentHandler;
+        if (contentHandlers.size() == 1) {
+            contentHandler = contentHandlers.get(0);
+            LOG.debug("Single ContentHandler of type " + contentHandler.getClass().getSimpleName());
+        }
+        else if (contentHandlers.size() > 1) {
+            contentHandler = new ContentHandlerBroadcast(contentHandlers);
+            if (LOG.isDebugEnabled()) {
+                // TODO! log the types too
+                LOG.debug("Combined " + contentHandlers.size() + " ContentHandlers");
             }
-            result = handlers;
+        }
+        else {
+            throw new IllegalStateException("No ContentHandlers");
         }
 
-        if (filterFunction != null) {
-            result = filterFunction.apply(foDocument, result);
-        }
-
-        return result;
+        return contentHandler;
     }
 
     private FOUserAgent buildUserAgent(FoDocument foDocument) {
         FopFactory fopFactory = foConfig.getFopFactory();
+
+        //fopFactory.getElementMappingRegistry().addElementMapping(new MTXElementMapping());
 
         FOUserAgent userAgent = fopFactory.newFOUserAgent();
         // Metadata is set on the DOM, allowing more metadata fields to be set.
@@ -202,11 +321,6 @@ public class FoWriterBuilder {
         DEFAULT_EVENT_LISTENER.processEvent(event);
     }
 
-    private ContentHandler buildTransformHandler(TransformInfo transformInfo, FoDocument foDocument, FOUserAgent userAgent) {
-        OutputStream out = transformInfo.outputStreamFunction.newOutputStream(transformInfo.foTransform, foDocument);
-        return transformInfo.foTransform.createHandler(out, foConfig.getFopFactory(), userAgent);
-    }
-
     private static class TransformInfo {
         private final FoTransform foTransform;
         private final FoTransformOutputStreamFunction outputStreamFunction;
@@ -215,6 +329,10 @@ public class FoWriterBuilder {
             this.foTransform = foTransform;
             this.outputStreamFunction = outputStreamFunction;
         }
+
+        // public String toString() {
+        //     return MoreObjec
+        // }
     }
 
 }

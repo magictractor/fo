@@ -18,9 +18,6 @@ package uk.co.magictractor.fo.handler;
 import java.io.OutputStream;
 
 import org.apache.fop.apps.FOUserAgent;
-import org.apache.fop.apps.FopFactory;
-import org.apache.fop.apps.MimeConstants;
-import org.xml.sax.ContentHandler;
 
 /**
  *
@@ -28,18 +25,13 @@ import org.xml.sax.ContentHandler;
 public class FoPassthroughTransform implements FoTransform {
 
     @Override
-    public ContentHandler createHandler(OutputStream out, FopFactory fopFactory, FOUserAgent userAgent) {
+    public Object createHandler(OutputStream out, FOUserAgent userAgent) {
         return new FoPassthroughHandler(out);
     }
 
     @Override
     public String fileExtension() {
         return ".fo";
-    }
-
-    @Override
-    public String mimeType() {
-        return MimeConstants.MIME_XSL_FO;
     }
 
 }
