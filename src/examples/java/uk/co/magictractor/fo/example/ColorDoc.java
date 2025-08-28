@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.magictractor.fo.samples;
+package uk.co.magictractor.fo.example;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -44,9 +44,9 @@ public class ColorDoc {
     public void createDoc(ElementModifier... colorSetters) {
         FoDocumentBuilder docBuilder = new FoDocumentBuilder(FoTemplates.getTemplate())
                 .withMetadataCreationDate(ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS))
-                .withMetadataTitle("Colours");
+                .withMetadataTitle("Color");
 
-        DocIO docIO = new DocIO("colours");
+        DocIO docIO = new DocIO("color");
 
         appendHighlighterExample(docBuilder);
 

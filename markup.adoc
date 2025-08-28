@@ -32,13 +32,13 @@ https://docs.asciidoctor.org/asciidoc/latest/tables/build-a-basic-table/
 | &plus;&plus;&plus;<u>&plus;&plus;&plus;text&plus;&plus;&plus;</u>&plus;&plus;&plus;
 | ~~
 
-| foreground colour
+| foreground color
 |
 | color attribute
 | _needs theme_
 | n/a
 
-| background colour
+| background color
 |
 | background-color attribute
 | _needs theme_

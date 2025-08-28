@@ -29,10 +29,10 @@ public class ColorAttributeSetter extends AttributeSetter {
 
     // Note that Apache FOP does not support z-index (as of 2.11)
     // see https://xmlgraphics.apache.org/fop/compliance.html
-    // Can use transparency with a fourth colour digit, but not helpful here (maybe if colours tweaked accordingly)
+    // Can use transparency with a fourth color digit, but not helpful here (maybe if colors tweaked accordingly)
     // see https://xmlgraphics.apache.org/fop/2.11/extensions.html
 
-    // Good, but slight difference with highlighted and not (see ColourDoc), try px instead
+    // Good, but slight difference with highlighted and not (see ColorDoc), try px instead
     // private static final String PADDING_TOP = "0.1em";
     // private static final String PADDING_BOTTOM = "0em";
     //  private static final String PADDING_SIDES = "0.15em";

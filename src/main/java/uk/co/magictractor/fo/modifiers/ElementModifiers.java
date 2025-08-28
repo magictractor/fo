@@ -154,7 +154,7 @@ public class ElementModifiers {
     }
 
     /*
-     * Pastel colours based on RGBs from
+     * Pastel colors based on RGBs from
      * https://web-highlights.com/blog/highlight-the-web-with-the-colors-of-your
      * -beloved-stabilo-highlighters.
      */
@@ -184,10 +184,9 @@ public class ElementModifiers {
         return getOrCreateElementModifier("highlighterPastelBlue", () -> createHighlighter("#c3effc"));
     }
 
-    private static final ElementModifier createHighlighter(String colour) {
-        // return new ColorAttributeSetter("background-color", colour).andThen(ElementModifiers.attributeSetterNS(Namespace.MTX, "highlighter", colour));
-        // TODO! pass in dimensions rather than colour to the id?
-        return new AttributeSetter("background-color", colour).andThen(new IdOverloadSetter("highlight", colour));
+    private static final ElementModifier createHighlighter(String color) {
+        // TODO! pass in dimensions rather than color to the id?
+        return new AttributeSetter("background-color", color).andThen(new IdOverloadSetter("highlight", color));
     }
 
     private ElementModifiers() {
