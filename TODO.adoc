@@ -26,3 +26,19 @@ Can workaround by using .ttf files instead. Updating Apache FontBox dependency (
 * Add ability to auto-resize fonts when text is in a fixed-width block.
 https://stackoverflow.com/questions/7497681/xsl-fo-auto-resize-font-size-in-a-fixed-cell
 https://xmlgraphics.apache.org/fop/2.10/intermediate.html
+
+#### Unescapers
+
+* Unescapers should return errors from libs that support it. Probably via a callback, thereby allowing errors to be ignored, logged or throw an exception.
+
+* FoUnescaper can be modified to:
+  * Add entity sets
+  * Record problems (do for third thirties first to establish the pattern)
+  * Make missing semicolon behaviour configurable - or (better?) two FoUnescapers, the behaviour differs between HTML 4 and HTML 5 impls
+  * xxx Make REPLACEMENT CHARACTER behaviour configurable. No, allow via subclassing.
+  * Make tests more rigorous (all control characters etc)
+  * Create performance tests
+  * [Would be nice] Write code to generate documentation incorporating feature support and performance
+    Would encourage enhancements to the document builder for footnotes, tables and maybe charts
+  * Check Spring 6.
+  * Log issues (or find existing reports)

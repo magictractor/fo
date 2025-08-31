@@ -63,7 +63,6 @@ public class VersionTest {
         assertThat(Version.fopVersion()).isEqualTo(findDependencyVersion(gradle, "org.apache.xmlgraphics:fop-core:"));
     }
 
-
     private String findDependencyVersion(Path gradle, String groupIdAndArtifact) throws IOException {
         if (!groupIdAndArtifact.endsWith(":")) {
             throw new IllegalArgumentException("groupIdAndArtifact should end with a colon");
@@ -85,7 +84,7 @@ public class VersionTest {
         }
 
         int startIndex = fopDependencyLine.indexOf(groupIdAndArtifact) + groupIdAndArtifact.length();
-        int endIndex = fopDependencyLine.indexOf("\"", startIndex);
+        int endIndex = fopDependencyLine.indexOf("\'", startIndex);
 
         return fopDependencyLine.substring(startIndex, endIndex);
     }

@@ -89,14 +89,27 @@ dependencies {
 
     implementation libs.guava
     
-    implementation("org.apache.xmlgraphics:fop-core:2.11")  {
-      // Excluded because classes conflict with newer JDKs.
-      exclude group: "xml-apis", module: "xml-apis"
+    implementation ('org.apache.xmlgraphics:fop-core:2.11') {
+        // Excluded because classes conflict with newer JDKs.
+        exclude group: 'xml-apis', module: 'xml-apis'
     }
     
+    // Optional libraries for Unescaper implementations.
+    // Commons Text has a dependency on Commons Lang3 that is required.
+    compileOnly 'org.apache.commons:commons-text:1.14.0'
+    compileOnly 'org.jsoup:jsoup:1.21.2'
+    compileOnly 'org.unbescape:unbescape:1.1.6.RELEASE'
+    // 6.2.10 needs JDK 17. Use 5.x.x with JDK 8.
+    compileOnly ('org.springframework:spring-web:5.3.39') {
+        // spring-core is retained for org.springframework.util.Assert
+        // spring-jcl is transitive from spring-core, we're using Apache's JCL because that what FOP uses.
+        exclude group: 'org.springframework', module: 'spring-jcl'
+        exclude group: 'org.springframework', module: 'spring-beans'
+    }
+
     testImplementation libs.junit.jupiter;
     testRuntimeOnly libs.junit.jupiter.platform;
     testImplementation libs.assertj;
     // Mockito 4 for Java 8. See https://github.com/mockito/mockito/issues/2997.
-    testImplementation("org.mockito:mockito-core:4.11.0")
+    testImplementation 'org.mockito:mockito-core:4.11.0'
 }
