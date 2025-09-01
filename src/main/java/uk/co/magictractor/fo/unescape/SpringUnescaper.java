@@ -17,6 +17,13 @@ package uk.co.magictractor.fo.unescape;
 
 import org.springframework.web.util.HtmlUtils;
 
+/**
+ * Version 5 of Spring is currently being used for compatibility with JDK 8.
+ * However, the issues with Spring's {@code HtmlUtils.htmlUnescape()} are still
+ * there with the latest version of Spring at the time of writing (6.2.10 tested
+ * with JDK 17).
+ */
+// Did not find an existing bug report in https://github.com/spring-projects/spring-framework.
 public class SpringUnescaper implements Unescaper {
 
     @Override

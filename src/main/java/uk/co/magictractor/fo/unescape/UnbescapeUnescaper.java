@@ -17,6 +17,9 @@ package uk.co.magictractor.fo.unescape;
 
 import org.unbescape.html.HtmlEscape;
 
+/**
+ * HTML 5 compliant, but does not record parser errors.
+ */
 public class UnbescapeUnescaper implements Unescaper {
 
     @Override

@@ -111,6 +111,37 @@ public abstract class AbstractUnescaperTest {
 
     /**
      * <p>
+     * A comment on stackoverflow.com suggested that Apache Text has an issue
+     * here. I wasn't able to replicate. And I couldn't find a resolved issue.
+     * <ul>
+     * <li>Commons Text 1.0 and Commons Lang 3.8.1, 3.0 passed the test suite,
+     * including this test.</li>
+     * <li>Commons Lang 2.0 throws NumberFormatExceptions for many tests because
+     * it doesn't handle hexadecimal. But this test passes.</li>
+     * </p>
+     * <p>
+     * Note that 2.0 does not have {@code unescapeHtml4()}, I tested with
+     * {@code unescapeHtml()}.
+     * </p>
+     *
+     * @see Nickkk comment on https://stackoverflow.com/a/994339
+     */
+    @Test
+    public void testUnescape_preserveTags() {
+        check("<p>&uuml;&egrave;</p> ", "<p>\u00fc\u00e8</p> ", !issueNoHtmlNames());
+    }
+
+    /**
+     * And check single and double quotation marks are preserved (see comment on
+     * testUnescape_preserve_tags()).
+     */
+    @Test
+    public void testUnescape_preserveQuotationMarks() {
+        check("\"Let's visit the caf&eacute;!\", she exclaimed", "\"Let's visit the caf\u00e9!\", she exclaimed", !issueNoHtmlNames());
+    }
+
+    /**
+     * <p>
      * Zero is special, it gets mapped to {@code U+FFFD REPLACEMENT CHAR}, but
      * other control characters do not. With HTML 5, many C1 control characters
      * are mapped using the Windows-1252 encoding.
@@ -375,6 +406,9 @@ public abstract class AbstractUnescaperTest {
     public void testUnescape_name_html4() {
         check("&copy;", "\u00a9", !issueNoHtmlNames());
         check("&eacute;", "\u00e9", !issueNoHtmlNames());
+        check("&bull;", "\u2022", !issueNoHtmlNames());
+        check("&otimes;", "\u2297", !issueNoHtmlNames());
+        check("&spades;", "\u2660", !issueNoHtmlNames());
     }
 
     // https://html.spec.whatwg.org/multipage/named-characters.html
