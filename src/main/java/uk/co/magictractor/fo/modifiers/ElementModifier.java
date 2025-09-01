@@ -27,4 +27,14 @@ public interface ElementModifier {
         return ElementModifiers.of(this, other);
     }
 
+    default ElementModifier andThen(ElementModifier... others) {
+        if (others.length == 0) {
+            return this;
+        }
+        ElementModifier[] all = new ElementModifier[others.length + 1];
+        all[0] = this;
+        System.arraycopy(others, 0, all, 1, others.length);
+        return ElementModifiers.of(all);
+    }
+
 }
