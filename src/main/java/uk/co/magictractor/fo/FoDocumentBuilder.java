@@ -20,8 +20,10 @@ import static uk.co.magictractor.fo.modifiers.ElementModifiers.attributeSetter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -92,6 +94,7 @@ public class FoDocumentBuilder {
     private Document domDocument;
     private FoMetadataDom foMetadata;
 
+    private List<URL> fontUrls;
     private Map<String, ElementModifier> styleModifiers;
     private VariableSubstitutionVisitor variableSubstitutionVisitor;
 
@@ -117,6 +120,9 @@ public class FoDocumentBuilder {
         withDocument0((Document) template.getDomDocument().cloneNode(true));
 
         // TODO! maybe include the defaults in the template and parse them from comments
+        if (template.getFontUrls() != null && !template.getFontUrls().isEmpty()) {
+            fontUrls = new ArrayList<>(template.getFontUrls());
+        }
         styleModifiers = DEFAULT_STYLE_MODIFIERS;
         if (template.getVariableSubstitutionVisitor() != null) {
             variableSubstitutionVisitor = new VariableSubstitutionVisitor(null, template.getVariableSubstitutionVisitor());
@@ -218,7 +224,7 @@ public class FoDocumentBuilder {
     }
 
     public FoDocument build() {
-        FoDocument document = new Template(domDocument, Collections.emptyList());
+        FoDocument document = new Template(domDocument, fontUrls);
 
         if (variableSubstitutionVisitor != null) {
             NodeVisitor documentVisitor = new VariableSubstitutionVisitor(document, variableSubstitutionVisitor);
@@ -229,7 +235,7 @@ public class FoDocumentBuilder {
     }
 
     public FoTemplate buildTemplate() {
-        return new Template(domDocument, Collections.emptyList(), styleModifiers, variableSubstitutionVisitor);
+        return new Template(domDocument, fontUrls, styleModifiers, variableSubstitutionVisitor);
     }
 
     public Element appendHeading(int level, String text, ElementModifier... elementModifiers) {
@@ -589,6 +595,38 @@ public class FoDocumentBuilder {
             variableSubstitutionVisitor = new VariableSubstitutionVisitor();
         }
         variableSubstitutionVisitor.add(variableName, replacementValueFunction);
+        return this;
+    }
+
+    public FoDocumentBuilder withFontUrl(String fontUrlSpec) {
+        return withFontUrls(fontUrlSpec);
+    }
+
+    public FoDocumentBuilder withFontUrls(String... fontUrlSpecs) {
+        if (fontUrls == null && fontUrlSpecs.length > 0) {
+            fontUrls = new ArrayList<>();
+        }
+        URL url;
+        for (String fontUrlSpec : fontUrlSpecs) {
+            try {
+                url = new URL(fontUrlSpec);
+            }
+            catch (MalformedURLException e) {
+                throw new IllegalArgumentException(e);
+            }
+            fontUrls.add(url);
+        }
+        return this;
+    }
+
+    public FoDocumentBuilder withFontUrl(URL fontUrl) {
+        if (fontUrl == null) {
+            throw new IllegalArgumentException();
+        }
+        if (fontUrls == null) {
+            fontUrls = new ArrayList<>();
+        }
+        fontUrls.add(fontUrl);
         return this;
     }
 
