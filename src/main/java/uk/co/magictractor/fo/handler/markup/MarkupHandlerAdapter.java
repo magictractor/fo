@@ -15,6 +15,8 @@
  */
 package uk.co.magictractor.fo.handler.markup;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
 import uk.co.magictractor.fo.handler.BlankContentHandler;
@@ -25,6 +27,8 @@ import uk.co.magictractor.fo.handler.BlankContentHandler;
  */
 public class MarkupHandlerAdapter implements BlankContentHandler {
 
+    private static final Log LOG = LogFactory.getLog(MarkupHandlerAdapter.class);
+
     private final MarkupHandler markupHandler;
 
     public MarkupHandlerAdapter(MarkupHandler markupHandler) {
@@ -34,6 +38,10 @@ public class MarkupHandlerAdapter implements BlankContentHandler {
     @Override
     public void characters(char ch[], int start, int length)
             throws SAXException {
+        // TODO! far too much whitespace.
+        // non-validating parsers may treat whitespace as characters rather than ignorable,
+        // so should track whether we're in a block (and more).
+        // this also currently gets called with metadata
         markupHandler.addText(new String(ch, start, length));
     }
 
