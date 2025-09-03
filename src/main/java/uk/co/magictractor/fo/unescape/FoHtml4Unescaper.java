@@ -15,24 +15,24 @@
  */
 package uk.co.magictractor.fo.unescape;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-/**
- *
- */
-// design: subclassing is anticipated, probably with an override of unescapeName().
-// TODO! could use a copy of https://www.w3.org/2003/entities/2007/w3centities-f.ent
-// to provide name mappings.
-// Or other file from https://www.w3.org/TR/xml-entity-names/
-// Or just HTML5 entity file.
-// https://html.spec.whatwg.org/multipage/named-characters.html#named-character-references
-// might be the same list?
-public class FoUnescaper implements Unescaper {
+import uk.co.magictractor.fo.entityset.EntitySets;
 
-    private static final Log LOG = LogFactory.getLog(FoUnescaper.class);
+public class FoHtml4Unescaper extends AbstractFoUnescaper {
 
-    private static final String REPLACEMENT_CHARACTER = "\ufffd";
+    private static final Log LOG = LogFactory.getLog(FoHtml4Unescaper.class);
+
+    public FoHtml4Unescaper() {
+        this(EntitySets.html4());
+    }
+
+    public FoHtml4Unescaper(Map<String, String> entitySet) {
+        super(entitySet);
+    }
 
     @Override
     public String unescape(String text) {
@@ -95,8 +95,6 @@ public class FoUnescaper implements Unescaper {
         return unescapeName(entityName);
     }
 
-    // If too big then return U+FFFD REPLACEMENT CHARACTER
-    // https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-state
     protected String unescapeHexadecimal(String hex) {
         if (hex.isEmpty()) {
             // Entity was "&#x;"
@@ -132,11 +130,9 @@ public class FoUnescaper implements Unescaper {
             }
         }
 
-        return tooBig ? REPLACEMENT_CHARACTER : new String(Character.toChars(codePoint));
+        return tooBig ? null : new String(Character.toChars(codePoint));
     }
 
-    // If too big then return U+FFFD REPLACEMENT CHARACTER
-    // https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-state
     protected String unescapeDecimal(String decimal) {
         if (decimal.isEmpty()) {
             // Entity was "&#;"
@@ -162,37 +158,7 @@ public class FoUnescaper implements Unescaper {
             }
         }
 
-        return tooBig ? REPLACEMENT_CHARACTER : convertCodePoint(codePoint);
-    }
-
-    /**
-     * If the HTML 5 specification were followed strictly, then some code points
-     * should be mapped to {@code U+FFFD REPLACEMENT CHARACTER}, including
-     * {@code 0x00}, surrogates and some control characters.
-     *
-     * @see https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-end-state
-     */
-    protected String convertCodePoint(int codePoint) {
-        // Character.isSurrogate(0); or use constants
-
-        return new String(Character.toChars(codePoint));
-    }
-
-    protected String unescapeName(String name) {
-        switch (name) {
-            case "amp":
-                return "&";
-            case "lt":
-                return "<";
-            case "gt":
-                return ">";
-            case "apos":
-                return "'";
-            case "quot":
-                return "\"";
-            default:
-                return null;
-        }
+        return tooBig ? null : convertCodePoint(codePoint);
     }
 
 }

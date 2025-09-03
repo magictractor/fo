@@ -15,12 +15,14 @@
  */
 package uk.co.magictractor.fo.entityset;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public final class EntitySets {
 
     private static Map<String, String> HTML5;
     private static Map<String, String> HTML4;
+    private static Map<String, String> XML_PREDEFINED;
 
     /**
      * <p>
@@ -64,6 +66,23 @@ public final class EntitySets {
                     .build();
         }
         return HTML4;
+    }
+
+    /**
+     * The XML specification specifies five entities.
+     */
+    public static Map<String, String> xmlPredefined() {
+        if (XML_PREDEFINED == null) {
+            Map<String, String> xmlMap = new HashMap<>(5);
+            // Only assigned after the Map contains all elements.
+            xmlMap.put("amp", "&");
+            xmlMap.put("lt", "<");
+            xmlMap.put("gt", ">");
+            xmlMap.put("apos", "'");
+            xmlMap.put("quot", "\"");
+            XML_PREDEFINED = xmlMap;
+        }
+        return XML_PREDEFINED;
     }
 
     private EntitySets() {

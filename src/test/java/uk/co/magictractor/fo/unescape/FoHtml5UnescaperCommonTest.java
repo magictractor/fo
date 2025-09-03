@@ -20,20 +20,15 @@ package uk.co.magictractor.fo.unescape;
  * {@code Unescaper} implementations. See {@link FoUnescaperTest} for more
  * rigorous testing.
  */
-public class FoUnescaperCommonTest extends AbstractUnescaperTest {
+public class FoHtml5UnescaperCommonTest extends AbstractUnescaperTest {
 
-    public FoUnescaperCommonTest() {
-        super(new FoUnescaper());
+    public FoHtml5UnescaperCommonTest() {
+        super(new FoHtml5Unescaper());
     }
 
     @Override
     int htmlVersion() {
         return 5;
-    }
-
-    @Override
-    protected boolean issueNoHtmlNames() {
-        return true;
     }
 
     @Override

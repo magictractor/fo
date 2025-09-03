@@ -29,7 +29,8 @@ import java.util.function.Function;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import uk.co.magictractor.fo.unescape.FoUnescaper;
+import uk.co.magictractor.fo.unescape.FoHtml4Unescaper;
+import uk.co.magictractor.fo.unescape.Unescaper;
 
 /**
  * Parser for entity declaration files, typically copied from W3C.
@@ -196,9 +197,9 @@ public class EntitySetBuilder {
 
     public static List<Entity> parseEntityDeclaration(String line) {
         // TODO! something better than a new Unescaper instance every time.
-        // Maybe a singleton FoXmlUnescaper.
-        // Also need to beware a loop between the FoUnescaper and the entity set initialisation.
-        FoUnescaper unescaper = new FoUnescaper();
+        // Maybe a singleton FoXmlUnescaper?
+        // Limit to the predefined XML entity set so that the Unescaper does not have a dependency on an EntitySetBuilder.
+        Unescaper unescaper = new FoHtml4Unescaper(EntitySets.xmlPredefined());
 
         if (!line.startsWith("<!ENTITY ")) {
             return null;

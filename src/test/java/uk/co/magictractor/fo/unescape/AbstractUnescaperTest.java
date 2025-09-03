@@ -128,7 +128,7 @@ public abstract class AbstractUnescaperTest {
      */
     @Test
     public void testUnescape_preserveTags() {
-        check("<p>&uuml;&egrave;</p> ", "<p>\u00fc\u00e8</p> ", !issueNoHtmlNames());
+        check("<p>&uuml;&egrave;</p> ", "<p>\u00fc\u00e8</p> ");
     }
 
     /**
@@ -137,7 +137,7 @@ public abstract class AbstractUnescaperTest {
      */
     @Test
     public void testUnescape_preserveQuotationMarks() {
-        check("\"Let's visit the caf&eacute;!\", she exclaimed", "\"Let's visit the caf\u00e9!\", she exclaimed", !issueNoHtmlNames());
+        check("\"Let's visit the caf&eacute;!\", she exclaimed", "\"Let's visit the caf\u00e9!\", she exclaimed");
     }
 
     /**
@@ -348,7 +348,7 @@ public abstract class AbstractUnescaperTest {
 
     private void checkTooBig(String entity) {
         if (!issueBigNumberCrash() && !issueSingleChar()) {
-            check(entity, REPLACEMENT_CHARACTER);
+            check(entity, REPLACEMENT_CHARACTER, htmlVersion() == 5);
         }
         else {
             checkBrokenTooBig(entity);
@@ -404,20 +404,19 @@ public abstract class AbstractUnescaperTest {
     // https://www.w3.org/TR/html4/sgml/entities.html
     @Test
     public void testUnescape_name_html4() {
-        check("&copy;", "\u00a9", !issueNoHtmlNames());
-        check("&eacute;", "\u00e9", !issueNoHtmlNames());
-        check("&bull;", "\u2022", !issueNoHtmlNames());
-        check("&otimes;", "\u2297", !issueNoHtmlNames());
-        check("&spades;", "\u2660", !issueNoHtmlNames());
+        check("&copy;", "\u00a9");
+        check("&eacute;", "\u00e9");
+        check("&bull;", "\u2022");
+        check("&otimes;", "\u2297");
+        check("&spades;", "\u2660");
     }
 
     // https://html.spec.whatwg.org/multipage/named-characters.html
     @Test
     public void testUnescape_name_html5() {
-        boolean isSupported = htmlVersion() == 5 && !issueNoHtmlNames();
-        check("&rarrtl;", "\u21a3", isSupported);
-        check("&boxUL;", "\u255d", isSupported);
-        check("1&lesg;2", "1\u22da\ufe002", isSupported);
+        check("&rarrtl;", "\u21a3", htmlVersion() == 5);
+        check("&boxUL;", "\u255d", htmlVersion() == 5);
+        check("1&lesg;2", "1\u22da\ufe002", htmlVersion() == 5);
     }
 
     @Test
@@ -455,10 +454,10 @@ public abstract class AbstractUnescaperTest {
      */
     @Test
     public void testUnescape_noLeadingSpace() {
-        check("&DownBreve;", "\u0311", htmlVersion() == 5 && !issueNoHtmlNames());
-        check("&tdot;", "\u20db", htmlVersion() == 5 && !issueNoHtmlNames());
-        check("&TripleDot;", "\u20db", htmlVersion() == 5 && !issueNoHtmlNames());
-        check("&DotDot;", "\u20dc", htmlVersion() == 5 && !issueNoHtmlNames());
+        check("&DownBreve;", "\u0311", htmlVersion() == 5);
+        check("&tdot;", "\u20db", htmlVersion() == 5);
+        check("&TripleDot;", "\u20db", htmlVersion() == 5);
+        check("&DotDot;", "\u20dc", htmlVersion() == 5);
     }
 
     /**
@@ -470,8 +469,8 @@ public abstract class AbstractUnescaperTest {
         // Value mismatch for lang, Html4 has 〈 (9001), Html5 has ⟨ (10216)
         // Value mismatch for rang, Html4 has 〉 (9002), Html5 has ⟩ (10217)
         if (htmlVersion() == 5) {
-            check("&lang;", "\u27e8", !issueNoHtmlNames());
-            check("&rang;", "\u27e9", !issueNoHtmlNames());
+            check("&lang;", "\u27e8");
+            check("&rang;", "\u27e9");
         }
         else {
             check("&lang;", "\u2329");
@@ -560,11 +559,6 @@ public abstract class AbstractUnescaperTest {
      * </p>
      */
     protected boolean issueNegativeDecimal() {
-        return false;
-    }
-
-    // HTML names not yet implemented for FoUnescaper; only the five predefined XML names.
-    protected boolean issueNoHtmlNames() {
         return false;
     }
 

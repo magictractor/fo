@@ -19,9 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import uk.co.magictractor.fo.unescape.FoUnescaper;
-
-public class FoUnescaperTest {
+public class FoHtml4UnescaperTest {
 
     @Test
     public void testUnescape_emptyString() {
@@ -55,7 +53,13 @@ public class FoUnescaperTest {
 
     @Test
     public void testUnescape_multipleEntitiesSeparated() {
-        check("&apos; &amp; &apos;", "' & '");
+        check("&lt; &amp; &gt;", "< & >");
+    }
+
+    // HTML 4 does not include &apos;.
+    @Test
+    public void testUnescape_apos() {
+        checkUnchanged("&apos;");
     }
 
     @Test
@@ -75,7 +79,7 @@ public class FoUnescaperTest {
 
     @Test
     public void testUnescape_unclosedEntity() {
-        checkUnchanged("&apos");
+        checkUnchanged("&lt");
     }
 
     @Test
@@ -149,7 +153,7 @@ public class FoUnescaperTest {
     }
 
     private void check(String in, String expectedOut) {
-        String actualOut = new FoUnescaper().unescape(in);
+        String actualOut = new FoHtml4Unescaper().unescape(in);
         assertThat(actualOut).isEqualTo(expectedOut);
     }
 
