@@ -153,7 +153,7 @@ public abstract class AbstractUnescaperTest {
      */
     @Test
     public void testUnescape_zero() {
-        String expected = supportsHtml5ReplacementCharacter() ? REPLACEMENT_CHARACTER : "\u0000";
+        String expected = htmlVersion() == 5 && !issueNoReplacementCharacterForZero() ? REPLACEMENT_CHARACTER : "\u0000";
         check("&#x00;", expected);
     }
 
@@ -185,6 +185,7 @@ public abstract class AbstractUnescaperTest {
         checkControl(0x8c, '\u0152');
         checkControl(0x8d);
         checkControl(0x8e, '\u017d');
+        checkControl(0x8f);
         checkControl(0x90);
         checkControl(0x91, '\u2018');
         checkControl(0x92, '\u2019');
@@ -250,21 +251,31 @@ public abstract class AbstractUnescaperTest {
         }
 
         String entity = "&#" + controlCodePoint + ";";
-        char expectedChar = supportsHtml5MappedCharacters() ? windows1252Mapping : (char) controlCodePoint;
+        char expectedChar = htmlVersion() == 5 ? windows1252Mapping : (char) controlCodePoint;
         String expected = new String(new char[] { expectedChar });
         check(entity, expected);
     }
 
     @Test
+    public void testUnescape_minLeadingSurrogateMinusOne() {
+        check("&#xd7ff;", "\ud7ff");
+    }
+
+    @Test
     public void testUnescape_leadingSurrogate() {
-        String expected = supportsHtml5ReplacementCharacter() ? REPLACEMENT_CHARACTER : "\ud800";
+        String expected = htmlVersion() == 5 && !issueNoReplacementCharacterForSurrogate() ? REPLACEMENT_CHARACTER : "\ud800";
         check("&#xd800;", expected);
     }
 
     @Test
     public void testUnescape_trailingSurrogate() {
-        String expected = supportsHtml5ReplacementCharacter() ? REPLACEMENT_CHARACTER : "\udfff";
+        String expected = htmlVersion() == 5 && !issueNoReplacementCharacterForSurrogate() ? REPLACEMENT_CHARACTER : "\udfff";
         check("&#xdfff;", expected);
+    }
+
+    @Test
+    public void testUnescape_maxTrailingSurrogatePlusOne() {
+        check("&#xe000;", "\ue000");
     }
 
     @Test
@@ -496,21 +507,6 @@ public abstract class AbstractUnescaperTest {
     // TODO! check expected entity set
 
     /**
-     * HTML 5 specifies how to deal with tricky code points such as null (0x00),
-     * large values, surrogates etc that should be mapped to U+FFFD REPLACEMENT
-     * CHARACTER.
-     *
-     * @see https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-state
-     */
-    protected boolean supportsHtml5ReplacementCharacter() {
-        return htmlVersion() == 5;
-    }
-
-    protected boolean supportsHtml5MappedCharacters() {
-        return htmlVersion() == 5;
-    }
-
-    /**
      * The HTML 5 specification allows the entity names to be inferred without a
      * semicolon.
      */
@@ -559,6 +555,33 @@ public abstract class AbstractUnescaperTest {
      * </p>
      */
     protected boolean issueNegativeDecimal() {
+        return false;
+    }
+
+    /**
+     * <p>
+     * HTML5 parsers should return {@code U+FFFD} for zero values numbered
+     * character references such as {@code &#x00;}.
+     * </p>
+     * <p>
+     * JSoup does not do this (also not for surrogate characters).
+     * </p>
+     */
+    protected boolean issueNoReplacementCharacterForZero() {
+        return false;
+    }
+
+    /**
+     * <p>
+     * HTML5 parsers should return {@code U+FFFD} for values that correspond to
+     * surrogate characters in numbered character references such as
+     * {@code &#x0d800;}.
+     * </p>
+     * <p>
+     * JSoup does not do this (also not for zero).
+     * </p>
+     */
+    protected boolean issueNoReplacementCharacterForSurrogate() {
         return false;
     }
 

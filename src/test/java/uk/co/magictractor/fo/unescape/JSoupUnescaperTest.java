@@ -27,8 +27,13 @@ public class JSoupUnescaperTest extends AbstractUnescaperTest {
     }
 
     @Override
-    public boolean supportsHtml5ReplacementCharacter() {
-        return false;
+    public boolean issueNoReplacementCharacterForZero() {
+        return true;
+    }
+
+    @Override
+    public boolean issueNoReplacementCharacterForSurrogate() {
+        return true;
     }
 
 }

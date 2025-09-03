@@ -32,16 +32,6 @@ public class FoHtml5UnescaperCommonTest extends AbstractUnescaperTest {
     }
 
     @Override
-    protected boolean supportsHtml5ReplacementCharacter() {
-        return false;
-    }
-
-    @Override
-    protected boolean supportsHtml5MappedCharacters() {
-        return false;
-    }
-
-    @Override
     protected boolean supportsEntityNameWithoutSemicolon() {
         return false;
     }

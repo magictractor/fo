@@ -26,6 +26,17 @@ public class FoHtml5Unescaper extends AbstractFoUnescaper {
 
     private static final Log LOG = LogFactory.getLog(FoHtml5Unescaper.class);
 
+    // int forms of char values
+    private static final int MIN_SURROGATE = Character.MIN_SURROGATE;
+    private static final int MAX_SURROGATE = Character.MAX_SURROGATE;
+
+    // 0x80 to 0x9f are mapped to Windows-1252 characters rather than the ANSI control codes.
+    private static final String CONTROL_CODE_C1_MAPPINGS = "" +
+            "\u20ac\u0081\u201a\u0192\u201e\u2026\u2020\u2021" +
+            "\u02c6\u2030\u0160\u2039\u0152\u008d\u017d\u008f" +
+            "\u0090\u2018\u2019\u201c\u201d\u2022\u2013\u2014" +
+            "\u02dc\u2122\u0161\u203a\u0153\u009d\u017e\u0178";
+
     private static final String REPLACEMENT_CHARACTER = "\ufffd";
 
     public FoHtml5Unescaper() {
@@ -134,7 +145,7 @@ public class FoHtml5Unescaper extends AbstractFoUnescaper {
             }
         }
 
-        return tooBig ? REPLACEMENT_CHARACTER : new String(Character.toChars(codePoint));
+        return tooBig ? REPLACEMENT_CHARACTER : convertCodePoint(codePoint);
     }
 
     // If too big then return U+FFFD REPLACEMENT CHARACTER
@@ -174,10 +185,20 @@ public class FoHtml5Unescaper extends AbstractFoUnescaper {
      *
      * @see https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-end-state
      */
+    @Override
     protected String convertCodePoint(int codePoint) {
-        // Character.isSurrogate(0); or use constants
+        if (codePoint == 0x00) {
+            return REPLACEMENT_CHARACTER;
+        }
+        if (codePoint >= MIN_SURROGATE && codePoint <= MAX_SURROGATE) {
+            return REPLACEMENT_CHARACTER;
+        }
+        if (codePoint >= 0x80 && codePoint <= 0x9f) {
+            int index = codePoint - 0x80;
+            return CONTROL_CODE_C1_MAPPINGS.substring(index, index + 1);
+        }
 
-        return new String(Character.toChars(codePoint));
+        return super.convertCodePoint(codePoint);
     }
 
 }
