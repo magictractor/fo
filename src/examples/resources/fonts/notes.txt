@@ -1,3 +1,16 @@
+Chinese
+=======
 Iansui chosen for examples with Chinese text.
 "Iansui is popular among school teachers and perfect for Traditional Chinese learners"
 https://blog.justfont.com/2024/08/google-fonts-cjk-en
+
+
+Maths
+=====
+https://stackoverflow.com/questions/28325233/good-webfont-for-mathematical-symbols
+
+https://fonts.google.com/specimen/STIX+Two+Text
+But About tab says "Math font (currently only available for direct download from the repository)".
+The Math font (and all other fonts) are at
+https://github.com/stipub/stixfonts/blob/master/fonts/static_otf/STIXTwoMath-Regular.otf
+Also says SIL OPEN FONT LICENSE Version 1.1 in the repo.

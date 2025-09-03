@@ -1,0 +1,59 @@
+htmlmathml-f.ent
+================
+The HTML MathML Entity Set is recommended by W3C for any new document type
+and is used by HTML 5 and MathML 3.
+
+Found via W3C's XML Entity Definitions for Characters (3rd Edition)
+https://www.w3.org/TR/xml-entity-names/#htmlmathml
+
+Can also be found relative to the MathML 3 DTDs.
+HTML5 does not have a DTD.
+
+
+w3centities-f.ent
+=================
+A superset of HTML 5, with additional Greek fonts.
+
+Found via W3C's XML Entity Definitions for Characters (3rd Edition)
+https://www.w3.org/TR/xml-entity-names/
+
+Some legacy entity sets are presented as tables, but there's a link to Entity Declarations
+on the side panel.
+
+
+entities.json
+=============
+Contains the HTML 5 entities in a JSON file.
+Each entity is on a single line, so doesn't need a JSON parser.
+There's a link to the HTML 5 JSON file
+https://html.spec.whatwg.org/entities.json
+below the table in the WHATWG HTML 5 specification
+https://html.spec.whatwg.org/multipage/named-characters.html
+
+
+HTMLlat1.ent, HTMLsymbol.ent, HTMLspecial.ent
+=============================================
+HTML 4 uses three entity sets, documented in the specification.
+https://www.w3.org/TR/html401/sgml/entities.html
+
+The entity definition files can be found relative to HTML4 DTDs.
+https://www.w3.org/TR/html401/sgml/entities.html
+
+Display one of the HTML 4.01 DTDs (strict.dtd, loose.dtd, frameset.dtd) in a browser and then modify
+the URL to each of the .ent files in turn. The files are not displayed,
+but are downloaded immediately (might be browser dependent).
+
+XHTML uses the same entity sets as HTML 4. See section A.2. Entity Sets in
+https://www.w3.org/TR/xhtml1/#dtds
+but modified to be valid XML 1.0 entity declarations.
+Downloads listed in the same section.
+
+Could XHTML variants avoid warnings in IDEs?
+No, Eclipse Ant Builder (default XML editor) still doesn't like them, but the files
+do look more like regular XML and it's good to ensure EntitySetBuilder
+handles both.
+
+But XHTML includes &apos;, it's in xhtml-special.ent.
+But section "C.16. The Named Character Reference &apos;"
+says that &apos; is not supported?
+Added a filter to the read with EntitySetBuilder.

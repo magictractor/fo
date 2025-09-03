@@ -437,6 +437,50 @@ public abstract class AbstractUnescaperTest {
 
     /**
      * <p>
+     * Spaces should have been removed from values of some entities according to
+     * the spec, but are still present in the W3C entity declarations.
+     * </p>
+     * <blockquote>Earlier versions of this specification defined these entities
+     * with the replacement text starting with a space, to avoid the possibility
+     * that the expansion of the entity combined with preceding text. However
+     * for various reasons the entities as incorporated in HTML do not have a
+     * space here, and so the definitions now consist just of the combining
+     * character so that HTML and XHTML are consistent with any specifications
+     * using these definitions.</blockquote>
+     * <p>
+     * This test is to guard against implementations still having the spaces.
+     * </p>
+     *
+     * @see https://www.w3.org/TR/xml-entity-names/#chars_math-combining-tables
+     */
+    @Test
+    public void testUnescape_noLeadingSpace() {
+        check("&DownBreve;", "\u0311", htmlVersion() == 5 && !issueNoHtmlNames());
+        check("&tdot;", "\u20db", htmlVersion() == 5 && !issueNoHtmlNames());
+        check("&TripleDot;", "\u20db", htmlVersion() == 5 && !issueNoHtmlNames());
+        check("&DotDot;", "\u20dc", htmlVersion() == 5 && !issueNoHtmlNames());
+    }
+
+    /**
+     * {@code &lang;} and {@code &rang;} are the only entities that have
+     * different values in HTML4 and HTML5.
+     */
+    @Test
+    public void testUnescape_langAndRang() {
+        // Value mismatch for lang, Html4 has 〈 (9001), Html5 has ⟨ (10216)
+        // Value mismatch for rang, Html4 has 〉 (9002), Html5 has ⟩ (10217)
+        if (htmlVersion() == 5) {
+            check("&lang;", "\u27e8", !issueNoHtmlNames());
+            check("&rang;", "\u27e9", !issueNoHtmlNames());
+        }
+        else {
+            check("&lang;", "\u2329");
+            check("&rang;", "\u232a");
+        }
+    }
+
+    /**
+     * <p>
      * The HTML version determines the entity names that are expected to be
      * supported and some expected behaviour.
      * </p>
