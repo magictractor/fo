@@ -59,6 +59,11 @@ test {
 }
 
 java {
+    // src/opt is for classes with an optional dependency on a third party library
+    // This prevents error is including src/main/java from another project (I do that while developing).
+    sourceSets.main.java.srcDirs += ['src/opt/java']
+    // Example code for manual testing and (ultimately) documentation.
+    // src/examples should not be included in the jar (contents must include an **/example/* folder to be excluded)
     sourceSets.main.java.srcDirs += ['src/examples/java']
     sourceSets.main.resources.srcDirs += ['src/examples/resources']
     
@@ -72,9 +77,11 @@ java {
 
 tasks.withType(Jar) {
     destinationDirectory.set(file("$rootDir/jars"))
-    // commons-logging.properties
     exclude('commons-logging.properties')
     exclude('simplelog.properties')
+    exclude('**/notes.txt')
+    exclude '**/fonts/*'
+    exclude '**/example/*'
 }
 
 clean {
