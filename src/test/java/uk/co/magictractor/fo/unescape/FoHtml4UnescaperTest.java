@@ -15,15 +15,17 @@
  */
 package uk.co.magictractor.fo.unescape;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 
-public class FoHtml4UnescaperTest {
+public class FoHtml4UnescaperTest extends AbstractUnescaperTest {
+
+    public FoHtml4UnescaperTest() {
+        super(new FoHtml4Unescaper());
+    }
 
     @Test
     public void testUnescape_emptyString() {
-        check("", "");
+        checkUnchanged("");
     }
 
     @Test
@@ -146,15 +148,6 @@ public class FoHtml4UnescaperTest {
     @Test
     public void testUnescape_decimal3chars() {
         check("&#122;", "z");
-    }
-
-    private void checkUnchanged(String in) {
-        check(in, in);
-    }
-
-    private void check(String in, String expectedOut) {
-        String actualOut = new FoHtml4Unescaper().unescape(in);
-        assertThat(actualOut).isEqualTo(expectedOut);
     }
 
 }

@@ -15,9 +15,9 @@
  */
 package uk.co.magictractor.fo.unescape;
 
-public class ApacheTextUnescaperTest extends AbstractUnescaperTest {
+public class ApacheTextUnescaperBenchmarkTest extends AbstractUnescaperBenchmarkTest {
 
-    public ApacheTextUnescaperTest() {
+    public ApacheTextUnescaperBenchmarkTest() {
         super(new ApacheTextUnescaper());
     }
 

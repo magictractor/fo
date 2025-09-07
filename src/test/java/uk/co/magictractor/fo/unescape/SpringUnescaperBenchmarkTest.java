@@ -15,9 +15,9 @@
  */
 package uk.co.magictractor.fo.unescape;
 
-public class SpringUnescaperTest extends AbstractUnescaperTest {
+public class SpringUnescaperBenchmarkTest extends AbstractUnescaperBenchmarkTest {
 
-    public SpringUnescaperTest() {
+    public SpringUnescaperBenchmarkTest() {
         super(new SpringUnescaper());
     }
 

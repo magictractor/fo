@@ -15,25 +15,20 @@
  */
 package uk.co.magictractor.fo.unescape;
 
-public class JSoupUnescaperTest extends AbstractUnescaperTest {
+/**
+ * This runs the standard test suite used for the wrappers to third party
+ * {@code Unescaper} implementations. See {@link FoUnescaperTest} for more
+ * rigorous testing.
+ */
+public class FoHtml4UnescaperBenchmarkTest extends AbstractUnescaperBenchmarkTest {
 
-    public JSoupUnescaperTest() {
-        super(new JSoupUnescaper());
+    public FoHtml4UnescaperBenchmarkTest() {
+        super(new FoHtml4Unescaper());
     }
 
     @Override
     int htmlVersion() {
-        return 5;
-    }
-
-    @Override
-    public boolean issueNoReplacementCharacterForZero() {
-        return true;
-    }
-
-    @Override
-    public boolean issueNoReplacementCharacterForSurrogate() {
-        return true;
+        return 4;
     }
 
 }

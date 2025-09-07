@@ -15,15 +15,10 @@
  */
 package uk.co.magictractor.fo.unescape;
 
-/**
- * This runs the standard test suite used for the wrappers to third party
- * {@code Unescaper} implementations. See {@link FoUnescaperTest} for more
- * rigorous testing.
- */
-public class FoHtml5UnescaperCommonTest extends AbstractUnescaperTest {
+public class JSoupUnescaperBenchmarkTest extends AbstractUnescaperBenchmarkTest {
 
-    public FoHtml5UnescaperCommonTest() {
-        super(new FoHtml5Unescaper());
+    public JSoupUnescaperBenchmarkTest() {
+        super(new JSoupUnescaper());
     }
 
     @Override
@@ -32,8 +27,13 @@ public class FoHtml5UnescaperCommonTest extends AbstractUnescaperTest {
     }
 
     @Override
-    protected boolean supportsEntityNameWithoutSemicolon() {
-        return false;
+    public boolean issueNoReplacementCharacterForZero() {
+        return true;
+    }
+
+    @Override
+    public boolean issueNoReplacementCharacterForSurrogate() {
+        return true;
     }
 
 }
