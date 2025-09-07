@@ -36,6 +36,16 @@ public abstract class AbstractUnescaperTest {
         this.unescaper = unescaper;
     }
 
+    @Test
+    public void testUnescape_emptyString() {
+        checkUnchanged("");
+    }
+
+    @Test
+    public void testUnescape_whiteSpace() {
+        checkUnchanged("  \t  \t");
+    }
+
     /**
      * XML has five predefined entities: {@code &amp;}, {@code &lt;},
      * {@code &gt;}, {@code &apos;}, and {@code &quot;}.
@@ -128,7 +138,21 @@ public abstract class AbstractUnescaperTest {
      */
     @Test
     public void testUnescape_preserveTags() {
-        check("<p>&uuml;&egrave;</p> ", "<p>\u00fc\u00e8</p> ");
+        check("<p>&uuml;&egrave;</p>", "<p>\u00fc\u00e8</p>");
+    }
+
+    /**
+     * If using something like JSoup's parseFragment, then whitespace might not
+     * be preserved.
+     */
+    @Test
+    public void testUnescape_preserveTagsWithWhiteSpace() {
+        check("<p >&uuml;&egrave;<  /p > ", "<p >\u00fc\u00e8<  /p > ");
+    }
+
+    @Test
+    public void testUnescape_preserveTagsWithAttributesAndWhiteSpace() {
+        check("<p   a=\"b\">&uuml;&egrave;<  /p > ", "<p   a=\"b\">\u00fc\u00e8<  /p > ");
     }
 
     /**
@@ -155,6 +179,41 @@ public abstract class AbstractUnescaperTest {
     public void testUnescape_zero() {
         String expected = htmlVersion() == 5 && !issueNoReplacementCharacterForZero() ? REPLACEMENT_CHARACTER : "\u0000";
         check("&#x00;", expected);
+    }
+
+    // Quirk seen when using a JSoup Parser.
+    // See https://github.com/jhy/jsoup/discussions/2394
+    @Test
+    public void testUnescape_zeroZero() {
+        String expected = htmlVersion() == 5 && !issueNoReplacementCharacterForZero() ? REPLACEMENT_CHARACTER : "\u0000";
+        check("&#0;&#x00;", expected + expected);
+    }
+
+    // JSoup fails if using parseFragmentInput variant (for parser errors).
+    // Fails with any null in the input.
+    // See https://github.com/jhy/jsoup/issues/2395
+    @Test
+    public void testUnescape_inputZero() {
+        checkUnchanged("\u0000");
+    }
+
+    @Test
+    public void testUnescape_inputZeroZero() {
+        checkUnchanged("\u0000\u0000");
+    }
+
+    @Test
+    public void testUnescape_inputControlCharacters() {
+        checkUnchanged("\u0001");
+        checkUnchanged("\u0031");
+        checkUnchanged("\u0080");
+        checkUnchanged("\u009f");
+    }
+
+    @Test
+    public void testUnescape_inputSurrogateCharacters() {
+        checkUnchanged(Character.toString(Character.MIN_SURROGATE));
+        checkUnchanged(Character.toString(Character.MAX_SURROGATE));
     }
 
     @Test

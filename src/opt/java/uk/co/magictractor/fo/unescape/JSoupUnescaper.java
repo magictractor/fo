@@ -17,14 +17,13 @@ package uk.co.magictractor.fo.unescape;
 
 import org.jsoup.parser.Parser;
 
+// Discussion of using ParserErrorList
+// at https://github.com/jhy/jsoup/discussions/2394
 public class JSoupUnescaper implements Unescaper {
 
     @Override
     public String unescape(String text) {
         // Unsure whether to use true or false for second param.
-        // Parser.unescapeEntities creates a Tokeniser. The Tokenizer has a list
-        // of errors, such as missing semicolon, but those are lost.
-        // Maybe change this use a Tokeniser and log the errors.
         return Parser.unescapeEntities(text, true);
     }
 

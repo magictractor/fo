@@ -18,12 +18,26 @@ package uk.co.magictractor.fo.unescape;
 import org.springframework.web.util.HtmlUtils;
 
 /**
- * Version 5 of Spring is currently being used for compatibility with JDK 8.
- * However, the issues with Spring's {@code HtmlUtils.htmlUnescape()} are still
- * there with the latest version of Spring at the time of writing (6.2.10 tested
- * with JDK 17).
+ * <p>
+ * Version 5 of Spring is used in this project for compatibility with JDK 8.
+ * Version 6 of Spring requires at least JDK 17, but this class may be used with
+ * any version of Spring after 1.2.9.
+ * </p>
+ * The release notes for 1.2.9 (July 2007) say: <blockquote>reimplemented
+ * HtmlUtils' "htmlUnescape" to correctly handle any entity references,
+ * including decimal and hex style </blockquote>
+ * <p>
+ * This class delegates to Spring Web's {@code HtmlUtils.htmlUnescape()}.
+ * </p>
+ * Known issues:
+ * <ul>
+ * <li>Returns incorrect values for numeric character entities for code points
+ * greater than {@code 0xFFFF}. The bug is present in the latest version of
+ * Spring at the time of writing (6.2.10 tested with JDK 17).
+ * </p>
+ *
+ * @see https://github.com/spring-projects/spring-framework/issues/35426
  */
-// Did not find an existing bug report in https://github.com/spring-projects/spring-framework.
 public class SpringUnescaper implements Unescaper {
 
     @Override
