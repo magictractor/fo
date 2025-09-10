@@ -26,12 +26,14 @@ public class FoHtml4Unescaper extends AbstractFoUnescaper {
 
     private static final Log LOG = LogFactory.getLog(FoHtml4Unescaper.class);
 
+    private final Map<String, String> entitySet;
+
     public FoHtml4Unescaper() {
         this(EntitySets.html4());
     }
 
     public FoHtml4Unescaper(Map<String, String> entitySet) {
-        super(entitySet);
+        this.entitySet = entitySet;
     }
 
     @Override
@@ -92,7 +94,7 @@ public class FoHtml4Unescaper extends AbstractFoUnescaper {
             }
             return unescapeDecimal(entityName.substring(1));
         }
-        return unescapeName(entityName);
+        return entitySet.get(entityName);
     }
 
     protected String unescapeHexadecimal(String hex) {

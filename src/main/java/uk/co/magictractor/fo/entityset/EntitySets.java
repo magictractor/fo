@@ -21,6 +21,7 @@ import java.util.Map;
 public final class EntitySets {
 
     private static Map<String, String> HTML5;
+    private static EntityTree HTML5_TREE;
     private static Map<String, String> HTML4;
     private static Map<String, String> XML_PREDEFINED;
 
@@ -42,6 +43,13 @@ public final class EntitySets {
         return HTML5;
     }
 
+    public static EntityTree html5Tree() {
+        if (HTML5_TREE == null) {
+            HTML5_TREE = new EntityTree(html5());
+        }
+        return HTML5_TREE;
+    }
+
     /**
      * <p>
      * XHTML uses the same entity sets as HTML 4. See section A.2. Entity Sets
@@ -56,7 +64,7 @@ public final class EntitySets {
                     .withExpectedSize(252)
                     .withEntityDeclarationsResource("xhtml-lat1.ent")
                     .withEntityDeclarationsResource("xhtml-symbol.ent")
-                    // The &apos; should be here accoring to the spec (section C.16.),
+                    // The &apos; should not be here accoring to the spec (section C.16.),
                     // but it is. Filter to match HTML 4.01.
                     .withEntityDeclarationsResource("xhtml-special.ent", (b, e) -> {
                         if (!e.getName().equals("apos")) {

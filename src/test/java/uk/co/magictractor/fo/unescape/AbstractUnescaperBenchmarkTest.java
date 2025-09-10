@@ -395,7 +395,6 @@ public abstract class AbstractUnescaperBenchmarkTest extends AbstractUnescaperTe
 
     @Test
     public void testUnescape_decimalLargerThanMaxInt() {
-        // Maximum code point is 0x10FFFF = 1114111.
         checkTooBig("&#9" + Integer.MAX_VALUE + "9;");
     }
 
@@ -543,6 +542,52 @@ public abstract class AbstractUnescaperBenchmarkTest extends AbstractUnescaperTe
         }
     }
 
+    @Test
+    public void testUnescape_ampersandOnly() {
+        checkUnchanged("&");
+    }
+
+    @Test
+    public void testUnescape_emptyReference() {
+        checkUnchanged("&;");
+    }
+
+    @Test
+    public void testUnescape_emptyDecimalReference() {
+        checkUnchanged("&#;");
+    }
+
+    @Test
+    public void testUnescape_emptyHexadecimalReference() {
+        checkUnchanged("&#x;");
+    }
+
+    // TODO! still not sure what's meant to happen.
+    // Create a static web page to test browser behaviours.
+    //
+    //    @Test
+    //    public void testUnescape_namedReferencePartialNotionUnclosed() {
+    //        // Not sign.
+    //        // https://www.compart.com/en/unicode/U+00AC
+    //        check("&notion", "\u00acion", supportsEntityNameWithoutSemicolon());
+    //    }
+    //    @Test
+    //    public void testUnescape_namedReferencePartialNotingUnclosed() {
+    //        // temp
+    //        check("&notin;", "\u2209");
+    //        check("&notin", "\u2209", supportsEntityNameWithoutSemicolon());
+    //
+    //        // Should use "&notin;" rather than the substring "&not;"
+    //        // https://www.compart.com/en/unicode/U+2209
+    //        check("&noting", "\u2209g", supportsEntityNameWithoutSemicolon());
+    //    }
+    //
+    //    @Test
+    //    public void testUnescape_namedReferencePartialNoti() {
+    //        // Partial match heading towards "&notin", but not getting there.
+    //        check("&noti;", "\u00aci;", htmlVersion() == 5);
+    //    }
+
     /**
      * <p>
      * The HTML version determines the entity names that are expected to be
@@ -564,6 +609,8 @@ public abstract class AbstractUnescaperBenchmarkTest extends AbstractUnescaperTe
      * The HTML 5 specification allows the entity names to be inferred without a
      * semicolon.
      */
+    // Keep this once FoHtmlUnescaper supports references with a semicolon.
+    // There might be a later enhancement to optionally modify the behaviour.
     protected boolean supportsEntityNameWithoutSemicolon() {
         return htmlVersion() == 5;
     }

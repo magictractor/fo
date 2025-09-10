@@ -15,8 +15,6 @@
  */
 package uk.co.magictractor.fo.unescape;
 
-import java.util.Map;
-
 /**
  * <p>
  * This class is public, but customisation is more likely to extend
@@ -24,16 +22,6 @@ import java.util.Map;
  * </p>
  */
 public abstract class AbstractFoUnescaper implements Unescaper {
-
-    private final Map<String, String> entitySet;
-
-    protected AbstractFoUnescaper(Map<String, String> entitySet) {
-        this.entitySet = entitySet;
-    }
-
-    protected String unescapeName(String name) {
-        return entitySet.get(name);
-    }
 
     /**
      * HTML 5 should override this to return

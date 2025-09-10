@@ -17,137 +17,26 @@ package uk.co.magictractor.fo.unescape;
 
 import org.junit.jupiter.api.Test;
 
-public class FoHtml4UnescaperTest extends AbstractUnescaperTest {
+public class FoHtml4UnescaperTest extends AbstractFoUnescaperTest {
 
-    public FoHtml4UnescaperTest() {
+    protected FoHtml4UnescaperTest() {
         super(new FoHtml4Unescaper());
-    }
-
-    @Test
-    public void testUnescape_emptyString() {
-        checkUnchanged("");
-    }
-
-    @Test
-    public void testUnescape_entityOnly() {
-        check("&amp;", "&");
-    }
-
-    @Test
-    public void testUnescape_entityWithTextBefore() {
-        check("abc&amp;", "abc&");
-    }
-
-    @Test
-    public void testUnescape_entityWithTextAfter() {
-        check("&amp;xyz", "&xyz");
-    }
-
-    @Test
-    public void testUnescape_entityWithTextBeforeAndAfter() {
-        check("1&lt;2", "1<2");
-    }
-
-    @Test
-    public void testUnescape_multipleEntitiesAdjacent() {
-        check("&quot;&amp;&quot;", "\"&\"");
-    }
-
-    @Test
-    public void testUnescape_multipleEntitiesSeparated() {
-        check("&lt; &amp; &gt;", "< & >");
     }
 
     // HTML 4 does not include &apos;.
     @Test
-    public void testUnescape_apos() {
+    public void testUnescape_namedReferenceApos() {
         checkUnchanged("&apos;");
     }
 
     @Test
-    public void testUnescape_entityStructureOnly() {
-        checkUnchanged("&unknown;");
-    }
-
-    @Test
-    public void testUnescape_entityThenEntityStructure() {
-        check("&lt;&unknown;", "<&unknown;");
-    }
-
-    @Test
-    public void testUnescape_entityStructureThenEntity() {
-        check("&unknown;&gt;", "&unknown;>");
-    }
-
-    @Test
-    public void testUnescape_unclosedEntity() {
+    public void testUnescape_namedReferenceUnclosed() {
         checkUnchanged("&lt");
     }
 
     @Test
-    public void testUnescape_unclosedSecondEntity() {
+    public void testUnescape_namedReferenceEmptyClosedAndUnclosed() {
         check("&lt;boo&gt", "<boo&gt");
-    }
-
-    @Test
-    public void testUnescape_empty() {
-        checkUnchanged("&;");
-    }
-
-    @Test
-    public void testUnescape_hexadecimalEmpty() {
-        checkUnchanged("&#x;");
-    }
-
-    @Test
-    public void testUnescape_hexadecimal2chars() {
-        check("&#xe9;", "\u00e9");
-    }
-
-    @Test
-    public void testUnescape_heaxadecimal3chars() {
-        check("&#xabc;", "\u0abc");
-    }
-
-    @Test
-    public void testUnescape_heaxadecimalUppercase() {
-        check("&#xCDEF;", "\ucdef");
-    }
-
-    @Test
-    public void testUnescape_heaxadecimalUppercaseX() {
-        check("&#X1234;", "\u1234");
-    }
-
-    @Test
-    public void testUnescape_heaxadecimalInvalid() {
-        checkUnchanged("&#xpqr;");
-    }
-
-    @Test
-    public void testUnescape_decimalEmpty() {
-        checkUnchanged("&#;");
-    }
-
-    @Test
-    public void testUnescape_decimalInvalid() {
-        checkUnchanged("&#abcd");
-    }
-
-    @Test
-    public void testUnescape_decimal1chars() {
-        // tab char
-        check("&#9;", "\t");
-    }
-
-    @Test
-    public void testUnescape_decimal2chars() {
-        check("&#90;", "Z");
-    }
-
-    @Test
-    public void testUnescape_decimal3chars() {
-        check("&#122;", "z");
     }
 
 }

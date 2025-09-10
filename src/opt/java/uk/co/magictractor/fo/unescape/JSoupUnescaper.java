@@ -23,8 +23,9 @@ public class JSoupUnescaper implements Unescaper {
 
     @Override
     public String unescape(String text) {
-        // Unsure whether to use true or false for second param.
-        return Parser.unescapeEntities(text, true);
+        // false, otherwise incomplete named character references
+        // are treated as though they are in an attribute.
+        return Parser.unescapeEntities(text, false);
     }
 
 }

@@ -54,19 +54,18 @@ public class AbstractUnescaperTest {
     }
 
     private String uString(String str) {
-        if (str.length() == 1) {
-            return uString(str.charAt(0));
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c <= 31 || c >= 128) {
+                sb.append(String.format("\\u%04x", (int) c));
+            }
+            else {
+                sb.append(c);
+            }
         }
-        else if (str.length() == 2) {
-            return uString(str.charAt(0)) + uString(str.charAt(1));
-        }
-        //throw new IllegalStateException("Code needs modification to handle string of length " + str.length());
-        // return "BIG";
-        return str;
-    }
 
-    private String uString(char c) {
-        return String.format("\\u%04x", (int) c);
+        return sb.toString();
     }
 
 }
