@@ -98,6 +98,9 @@ public final class EntitySets {
 
     public static void main(String[] args) {
         EntitySets.html5();
+
+        // DO NOT COMMIT
+        new BinarySearchEntitySet(EntitySets.html5());
     }
 
 }

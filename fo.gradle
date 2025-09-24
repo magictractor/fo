@@ -66,6 +66,10 @@ java {
     // src/examples should not be included in the jar (contents must include an **/example/* folder to be excluded)
     sourceSets.main.java.srcDirs += ['src/examples/java']
     sourceSets.main.resources.srcDirs += ['src/examples/resources']
+    // Slow running tests. Should run when packaging. Available in IDE, but easy to exclude from test runs. Should not contribute to code coverage.
+    sourceSets.test.java.srcDirs += ['src/slowtest/java']
+    // Treat perf folders as tests so they are not packaged. But there should be no tests in the folders.
+    sourceSets.test.java.srcDirs += ['src/perf/java']
     
     // Restricted to Java 8 to match Apache FOP.
     sourceCompatibility = JavaVersion.VERSION_1_8

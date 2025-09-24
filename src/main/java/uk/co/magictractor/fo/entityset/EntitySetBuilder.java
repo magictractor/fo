@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
@@ -45,6 +46,19 @@ public class EntitySetBuilder {
 
     private int expectedSize;
     private float loadFactor = 0.75f;
+
+    private BiFunction<String, String, Entity> entityConstructor = Entity::new;
+
+    /**
+     * Allows the {@code Entity} constructor to be modified for the (unlikely)
+     * scenario that a subclass of {@code Entity} is used, most likely in order
+     * the change the validation rules for {@code Entity} names.
+     * </p>
+     */
+    public EntitySetBuilder withEntityConstructor(BiFunction<String, String, Entity> entityConstructor) {
+        this.entityConstructor = entityConstructor;
+        return this;
+    }
 
     /**
      * <p>
@@ -123,11 +137,11 @@ public class EntitySetBuilder {
     }
 
     public EntitySetBuilder withEntityDeclarationsResource(String resourceName) {
-        return this.withResource(resourceName, EntitySetBuilder::parseEntityDeclaration);
+        return this.withResource(resourceName, this::parseEntityDeclaration);
     }
 
     public EntitySetBuilder withEntityDeclarationsResource(String resourceName, BiConsumer<EntitySetBuilder, Entity> entityConsumer) {
-        return this.withResource(resourceName, EntitySetBuilder::parseEntityDeclaration, entityConsumer);
+        return this.withResource(resourceName, this::parseEntityDeclaration, entityConsumer);
     }
 
     public EntitySetBuilder withResource(String resourceName, Function<String, List<Entity>> parseFunction) {
@@ -195,7 +209,7 @@ public class EntitySetBuilder {
         }
     }
 
-    public static List<Entity> parseEntityDeclaration(String line) {
+    public List<Entity> parseEntityDeclaration(String line) {
         // TODO! something better than a new Unescaper instance every time.
         // Maybe a singleton FoXmlUnescaper?
         // Limit to the predefined XML entity set so that the Unescaper does not have a dependency on an EntitySetBuilder.
@@ -217,7 +231,6 @@ public class EntitySetBuilder {
             name = line.substring(nameStartIndex, nameEndIndex);
         }
 
-        //return new Entity(line, line);
         int valueStartIndex = line.indexOf('\"');
         int valueEndIndex = line.indexOf('\"', valueStartIndex + 1);
         String escapedValue = line.substring(valueStartIndex + 1, valueEndIndex);
@@ -242,7 +255,7 @@ public class EntitySetBuilder {
         // temp
         //LOG.debug(name + " -> " + value + " [" + escapedValue + "]");
 
-        return Collections.singletonList(new Entity(name, value));
+        return Collections.singletonList(entityConstructor.apply(name, value));
     }
 
     // https://www.w3.org/TR/xml-entity-names/#chars_math-combining-tables
@@ -334,6 +347,7 @@ public class EntitySetBuilder {
         throw new IllegalArgumentException();
     }
 
+    // TODO! return an EntitySet rather than a Map
     public Map<String, String> build() {
         if (map == null) {
             throw new IllegalStateException("No methods that provide data to the builder have been called");

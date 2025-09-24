@@ -1,0 +1,64 @@
+/**
+ * Copyright 2025 Ken Dobson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package uk.co.magictractor.fo.entityset;
+
+import java.util.AbstractCollection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.stream.Stream;
+
+public class MapEntitySet extends AbstractCollection<Entity> implements EntitySet {
+
+    private final Map<String, String> map;
+
+    public MapEntitySet(Map<String, String> map) {
+        this.map = map;
+    }
+
+    @Override
+    public String getValue(String name) {
+        return map.get(name);
+    }
+
+    @Override
+    public Entity getEntity(String name) {
+        String value = map.get(name);
+        return value == null ? null : new Entity(name, name);
+    }
+
+    @Override
+    public Entity getLongestEntityAtStart(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int size() {
+        return map.size();
+    }
+
+    @Override
+    public Iterator<Entity> iterator() {
+        return stream().iterator();
+    }
+
+    @Override
+    public Stream<Entity> stream() {
+        return map.entrySet()
+                .stream()
+                .map(e -> new Entity(e.getKey(), e.getValue()));
+    }
+
+}
