@@ -110,4 +110,9 @@ public class CustomNamespaces implements Namespaces {
         return forUri(NAMESPACE_URI_RDF);
     }
 
+    @Override
+    public Namespace mtx() {
+        return forUri(NAMESPACE_URI_MTX);
+    }
+
 }

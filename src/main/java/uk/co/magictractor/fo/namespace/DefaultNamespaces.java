@@ -77,6 +77,7 @@ public class DefaultNamespaces implements Namespaces {
     private static final Namespace FOX = new Namespace("fox", NAMESPACE_URI_FOX);
     private static final Namespace X = new Namespace("x", NAMESPACE_URI_X);
     private static final Namespace RDF = new Namespace("rdf", NAMESPACE_URI_RDF);
+    private static final Namespace MTX = new Namespace("mtx", NAMESPACE_URI_MTX);
 
     public static DefaultNamespaces get() {
         return INSTANCE;
@@ -136,6 +137,11 @@ public class DefaultNamespaces implements Namespaces {
     }
 
     @Override
+    public Namespace mtx() {
+        return MTX;
+    }
+
+    @Override
     public Namespace forUri(String namespaceUri) {
         switch (namespaceUri) {
             case NAMESPACE_URI_XMLNS:
@@ -156,6 +162,8 @@ public class DefaultNamespaces implements Namespaces {
                 return X;
             case NAMESPACE_URI_RDF:
                 return RDF;
+            case NAMESPACE_URI_MTX:
+                return MTX;
             default:
                 return null;
         }

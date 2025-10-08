@@ -98,6 +98,8 @@ public interface Namespaces {
     static final String NAMESPACE_URI_X = "adobe:ns:meta/";
     static final String NAMESPACE_URI_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
+    static final String NAMESPACE_URI_MTX = "http://magictractor.co.uk/fo/extensions/pdf/1.0/";
+
     Namespace xml();
 
     Namespace xmlns();
@@ -120,6 +122,8 @@ public interface Namespaces {
 
     // xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     Namespace rdf();
+
+    Namespace mtx();
 
     Namespace forUri(String namespaceUri);
 
