@@ -201,6 +201,18 @@ public final class DomUtil {
         }
     }
 
+    public static Document parseResource(String resourceName) {
+        try (InputStream in = DomUtil.class.getResourceAsStream(resourceName)) {
+            if (in == null) {
+                throw new IllegalArgumentException("Missing resource " + resourceName);
+            }
+            return parseInputStream(in);
+        }
+        catch (IOException closeException) {
+            throw new UncheckedIOException(closeException);
+        }
+    }
+
     public static Document parseXml(String xml) {
         return parseInputStream(new ReaderInputStream(new StringReader(xml), StandardCharsets.US_ASCII));
     }

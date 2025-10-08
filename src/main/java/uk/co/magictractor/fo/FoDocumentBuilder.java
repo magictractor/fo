@@ -17,9 +17,6 @@ package uk.co.magictractor.fo;
 
 import static uk.co.magictractor.fo.modifiers.ElementModifiers.attributeSetter;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.ZonedDateTime;
@@ -30,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,6 +35,9 @@ import org.w3c.dom.Text;
 
 import uk.co.magictractor.fo.indent.FoIndent;
 import uk.co.magictractor.fo.modifiers.ElementModifier;
+import uk.co.magictractor.fo.namespace.CustomNamespaces;
+import uk.co.magictractor.fo.namespace.Namespace;
+import uk.co.magictractor.fo.namespace.Namespaces;
 import uk.co.magictractor.fo.stack.ArrayElementStack;
 import uk.co.magictractor.fo.stack.ElementStack;
 import uk.co.magictractor.fo.stack.ImmutableElementStack;
@@ -96,13 +97,14 @@ public class FoDocumentBuilder {
 
     private List<URL> fontUrls;
     private Map<String, ElementModifier> styleModifiers;
-    private VariableSubstitutionVisitor variableSubstitutionVisitor;
+    private Map<String, Function<FoDocument, String>> variableSubstitutions;
 
     // Stack could/should contain more info? isImplict and info about newlines...
     private ElementStack elementStack = new ArrayElementStack();
     // inline-containers have an implicit block
     private int implicitBlocksOnElementStack = 0;
 
+    private Namespaces namespaces;
     private FoIndent foIndent;
 
     // TODO! bin this and have a no-op FoIndent instead?
@@ -116,19 +118,18 @@ public class FoDocumentBuilder {
     private boolean isStartOfLine = true;
 
     public FoDocumentBuilder(FoTemplate template) {
-        // TODO! rework this, withDocumentResource() predates the constructors with args.
-        withDocument0((Document) template.getDomDocument().cloneNode(true));
+        domDocument = (Document) template.getDomDocument().cloneNode(true);
 
         // TODO! maybe include the defaults in the template and parse them from comments
         if (template.getFontUrls() != null && !template.getFontUrls().isEmpty()) {
             fontUrls = new ArrayList<>(template.getFontUrls());
         }
         styleModifiers = DEFAULT_STYLE_MODIFIERS;
-        if (template.getVariableSubstitutionVisitor() != null) {
-            variableSubstitutionVisitor = new VariableSubstitutionVisitor(null, template.getVariableSubstitutionVisitor());
-        }
-        // TODO! copy indent from the template?
-        foIndent = FoIndent.infer(domDocument);
+        variableSubstitutions = template.getVariableSubstitutions();
+        namespaces = template.getNamespaces();
+        foIndent = template.getIndent();
+
+        initBodyAndStack();
     }
 
     /**
@@ -136,37 +137,19 @@ public class FoDocumentBuilder {
      */
     public FoDocumentBuilder(String resourceName) {
         // TODO! rework this, withDocumentResource() predates the constructors with args.
-        withDocumentResource(resourceName);
+        domDocument = DomUtil.parseResource(resourceName);
+        namespaces = inferNamespaces();
         foIndent = FoIndent.infer(domDocument);
+
+        Element body = getBody();
+        // Strip is only needed after reading a resource
+        DomUtil.stripTrailingWhiteSpace(body);
+
+        initBodyAndStack();
     }
 
-    private FoDocumentBuilder withDocumentResource(String resourceName) {
-        try (InputStream in = getClass().getResourceAsStream(resourceName)) {
-            if (in == null) {
-                throw new IllegalArgumentException("Missing resource " + resourceName);
-            }
-            return withDocumentStream(in);
-        }
-        catch (IOException closeException) {
-            throw new UncheckedIOException(closeException);
-        }
-    }
-
-    // Caller is responsible for closing the stream.
-    private FoDocumentBuilder withDocumentStream(InputStream in) {
-        if (in == null) {
-            throw new IllegalArgumentException("InputStream must not be null");
-        }
-        return withDocument0(DomUtil.parseInputStream(in));
-    }
-
-    // a public variant should clone the doc
-    private FoDocumentBuilder withDocument0(Document domDocument) {
-        if (this.domDocument != null) {
-            throw new IllegalArgumentException("A document has already been set");
-        }
-
-        this.domDocument = domDocument;
+    // Hmm... bit grubby
+    private void initBodyAndStack() {
         Element body = getBody();
         // TODO! strip is only needed after reading a resource
         DomUtil.stripTrailingWhiteSpace(body);
@@ -177,8 +160,22 @@ public class FoDocumentBuilder {
             p = p.getParentNode();
             // stops at Document
         } while (p.getNodeType() == Node.ELEMENT_NODE);
+    }
 
-        return this;
+    private Namespaces inferNamespaces() {
+        return NodeVisitor.traverse(domDocument, new NamespaceVisitor()).namespaces.orFallback();
+    }
+
+    private static class NamespaceVisitor implements NodeVisitor {
+        private CustomNamespaces namespaces = new CustomNamespaces();
+
+        @Override
+        public int visitAttribute(Attr attribute) {
+            if (Namespaces.NAMESPACE_URI_XMLNS.equals(attribute.getNamespaceURI())) {
+                namespaces.putNamespace(attribute.getPrefix(), attribute.getNamespaceURI());
+            }
+            return STATUS_CONTINUE;
+        }
     }
 
     public FoDocumentBuilder withBodyFunction(Function<Document, Element> bodyFunction) {
@@ -217,17 +214,18 @@ public class FoDocumentBuilder {
         if (!"fo:root".equals(root.getNodeName())) {
             throw new IllegalArgumentException("Expected the top-level Element to be fo:root");
         }
-        Element pageSequence = DomUtil.findChild(root, Namespace.FO.qName("page-sequence"));
-        Element flow = DomUtil.findChild(pageSequence, Namespace.FO.qName("flow"));
+        Element pageSequence = DomUtil.findChild(root, namespaces.fo().qName("page-sequence"));
+        Element flow = DomUtil.findChild(pageSequence, namespaces.fo().qName("flow"));
 
         return flow;
     }
 
     public FoDocument build() {
-        FoDocument document = new Template(domDocument, fontUrls);
+        // Could convert metadata to a pojo and then wouldn't need to pass namespaces? or do something else?
+        FoDocument document = new Template(domDocument, namespaces, fontUrls);
 
-        if (variableSubstitutionVisitor != null) {
-            NodeVisitor documentVisitor = new VariableSubstitutionVisitor(document, variableSubstitutionVisitor);
+        if (variableSubstitutions != null) {
+            NodeVisitor documentVisitor = new VariableSubstitutionVisitor("${", "}", document, variableSubstitutions);
             NodeVisitor.traverse(document.getDomDocument(), documentVisitor);
         }
 
@@ -235,7 +233,7 @@ public class FoDocumentBuilder {
     }
 
     public FoTemplate buildTemplate() {
-        return new Template(domDocument, fontUrls, styleModifiers, variableSubstitutionVisitor);
+        return new Template(domDocument, namespaces, foIndent, fontUrls, styleModifiers, variableSubstitutions);
     }
 
     public Element appendHeading(int level, String text, ElementModifier... elementModifiers) {
@@ -338,7 +336,7 @@ public class FoDocumentBuilder {
 
         boolean requiresContainer = requiresContainer(elementModifiers);
         String name = requiresContainer ? "inline-container" : "inline";
-        Element foInline = createElementNS(name, Namespace.FO);
+        Element foInline = createElementNS(name, namespaces.fo());
         for (ElementModifier elementModifier : elementModifiers) {
             elementModifier.modify(foInline);
         }
@@ -489,7 +487,7 @@ public class FoDocumentBuilder {
     private Element pushBlock(String attributeKey, ElementModifier... elementModifiers) {
         isStartOfLine = true;
 
-        Element foBlock = createElementNS("block", Namespace.FO);
+        Element foBlock = createElementNS("block", namespaces.fo());
 
         if (attributeKey != null) {
             applyStyleModifier(foBlock, attributeKey);
@@ -535,7 +533,7 @@ public class FoDocumentBuilder {
 
     private FoMetadataDom getMetadata() {
         if (foMetadata == null) {
-            foMetadata = new FoMetadataDom(domDocument, foIndent::applyIndent);
+            foMetadata = new FoMetadataDom(domDocument, namespaces, foIndent::applyIndent);
         }
         return foMetadata;
     }
@@ -591,10 +589,10 @@ public class FoDocumentBuilder {
     }
 
     public FoDocumentBuilder withVariableSubstitution(String variableName, Function<FoDocument, String> replacementValueFunction) {
-        if (variableSubstitutionVisitor == null) {
-            variableSubstitutionVisitor = new VariableSubstitutionVisitor();
+        if (variableSubstitutions == null) {
+            variableSubstitutions = new HashMap<>();
         }
-        variableSubstitutionVisitor.add(variableName, replacementValueFunction);
+        variableSubstitutions.put(variableName, replacementValueFunction);
         return this;
     }
 
@@ -633,26 +631,34 @@ public class FoDocumentBuilder {
     private static class Template implements FoTemplate {
 
         private final Document domDocument;
+        private final Namespaces namespaces;
         private final List<URL> fontUrls;
         private final Map<String, ElementModifier> styleModifiers;
-        private final VariableSubstitutionVisitor variableSubstitutionVisitor;
+        private final Map<String, Function<FoDocument, String>> variableSubstitutions;
+        private final FoIndent indent;
 
         private FoMetadata foMetadata;
 
         // FoTemplate constructor for buildTemplate()
-        /* default */ Template(Document domDocument, List<URL> fontUrls, Map<String, ElementModifier> styleModifiers, VariableSubstitutionVisitor variableSubstitutionVisitor) {
+        /* default */ Template(Document domDocument, Namespaces namespaces, FoIndent indent, List<URL> fontUrls, Map<String, ElementModifier> styleModifiers,
+                Map<String, Function<FoDocument, String>> variableSubstitutions) {
             this.domDocument = domDocument;
+            this.namespaces = namespaces;
+            this.indent = indent;
             this.fontUrls = fontUrls;
             this.styleModifiers = styleModifiers == null ? null : Collections.unmodifiableMap(styleModifiers);
-            this.variableSubstitutionVisitor = variableSubstitutionVisitor;
+            this.variableSubstitutions = variableSubstitutions;
         }
 
         // FoDocument constructor for build()
-        /* default */ Template(Document domDocument, List<URL> fontUrls) {
+        // Namespaces needed for getting metatdata.
+        /* default */ Template(Document domDocument, Namespaces namespaces, List<URL> fontUrls) {
             this.domDocument = domDocument;
+            this.namespaces = namespaces;
+            this.indent = null;
             this.fontUrls = fontUrls;
             this.styleModifiers = null;
-            this.variableSubstitutionVisitor = null;
+            this.variableSubstitutions = null;
         }
 
         @Override
@@ -663,7 +669,7 @@ public class FoDocumentBuilder {
         @Override
         public FoMetadata getMetadata() {
             if (foMetadata == null) {
-                foMetadata = new FoMetadataDom(domDocument);
+                foMetadata = new FoMetadataDom(domDocument, namespaces);
             }
             return foMetadata;
         }
@@ -681,10 +687,21 @@ public class FoDocumentBuilder {
 
         // Template only
         @Override
-        public VariableSubstitutionVisitor getVariableSubstitutionVisitor() {
-            return variableSubstitutionVisitor;
+        public Map<String, Function<FoDocument, String>> getVariableSubstitutions() {
+            return variableSubstitutions;
         }
 
+        // Template only
+        @Override
+        public FoIndent getIndent() {
+            return indent;
+        }
+
+        // Template only
+        @Override
+        public Namespaces getNamespaces() {
+            return namespaces;
+        }
     }
 
 }

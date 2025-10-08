@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import uk.co.magictractor.fo.namespace.DefaultNamespaces;
+
 public class DomUtilTest {
 
     @Test
@@ -26,7 +28,8 @@ public class DomUtilTest {
         Document doc = createMetadataDocument();
         //  DomUtil.findOrCreateChild(null, null, null, null, null);
         Element root = (Element) doc.getFirstChild();
-        DomUtil.findChild(root, Namespace.FO.qName("declarations"));
+        // TODO! build Namespaces from the DOM.
+        DomUtil.findChild(root, DefaultNamespaces.get().fo().qName("declarations"));
     }
 
     private Document createMetadataDocument() {

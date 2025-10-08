@@ -25,6 +25,8 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import uk.co.magictractor.fo.namespace.Namespaces;
+
 /**
  * <pre>{@code
 <fo:declarations xmlns:x="adobe:ns:meta/" xmlns:rdf=
@@ -62,31 +64,21 @@ import org.w3c.dom.Element;
  */
 public class FoMetadataDom implements FoMetadata {
 
-    private static final QName DC_TITLE = Namespace.DC.qName("title");
-    private static final QName DC_AUTHOR = Namespace.DC.qName("creator");
-    private static final QName DC_SUBJECT = Namespace.DC.qName("description");
-    private static final QName PDF_KEYWORDS = Namespace.PDF.qName("Keywords");
-    private static final QName XMP_CREATOR_TOOL = Namespace.XMP.qName("CreatorTool");
-    private static final QName PDF_PRODUCER = Namespace.PDF.qName("Producer");
-    private static final QName XMP_CREATE_DATE = Namespace.XMP.qName("CreateDate");
-    private static final QName XMP_MODIFY_DATE = Namespace.XMP.qName("ModifyDate");
-
-    private static final QName FOX_NAME = Namespace.FOX.qName("name");
-
     private final Document domDocument;
+    private final Namespaces namespaces;
     private final Consumer<Element> createdElementCallback;
 
     // Ternary: null for unknown, empty for not in DOM (reading), else present
     private Optional<Element> rdfDescription;
     private Optional<Element> foxInfo;
 
-    public FoMetadataDom(Document domDocument) {
-        this(domDocument, (element) -> {
+    public FoMetadataDom(Document domDocument, Namespaces namespaces) {
+        this(domDocument, namespaces, (element) -> {
             throw new IllegalStateException("Attempted to modify immutable instance of " + FoMetadataDom.class.getSimpleName());
         });
     }
 
-    public FoMetadataDom(Document domDocument, Consumer<Element> createdElementCallback) {
+    public FoMetadataDom(Document domDocument, Namespaces namespaces, Consumer<Element> createdElementCallback) {
         if (domDocument == null) {
             throw new IllegalArgumentException("Document must not be null");
         }
@@ -94,44 +86,45 @@ public class FoMetadataDom implements FoMetadata {
             throw new IllegalArgumentException("Created element callback must not be null (but it could be a stub or throw an exception)");
         }
         this.domDocument = domDocument;
+        this.namespaces = namespaces;
         this.createdElementCallback = createdElementCallback;
     }
 
     @Override
     public String getTitle() {
-        return getRdfDescriptionString(DC_TITLE);
+        return getRdfDescriptionString(namespaces.dc().qName("title"));
     }
 
     public void setTitle(String title) {
-        setRdfDescriptionString(DC_TITLE, title);
+        setRdfDescriptionString(namespaces.dc().qName("title"), title);
     }
 
     @Override
     public String getAuthor() {
-        return getRdfDescriptionString(DC_AUTHOR);
+        return getRdfDescriptionString(namespaces.dc().qName("creator"));
     }
 
     public void setAuthor(String author) {
-        setRdfDescriptionString(DC_AUTHOR, author);
+        setRdfDescriptionString(namespaces.dc().qName("creator"), author);
     }
 
     @Override
     public String getSubject() {
-        return getRdfDescriptionString(DC_SUBJECT);
+        return getRdfDescriptionString(namespaces.dc().qName("description"));
     }
 
     public void setSubject(String subject) {
-        setRdfDescriptionString(DC_SUBJECT, subject);
+        setRdfDescriptionString(namespaces.dc().qName("description"), subject);
     }
 
     // TODO! where to get/set keywords - there are two options pdf:Keywords and xmp:Keywords
     @Override
     public String getKeywords() {
-        return getRdfDescriptionString(PDF_KEYWORDS);
+        return getRdfDescriptionString(namespaces.pdf().qName("Keywords"));
     }
 
     public void setKeywords(String keywords) {
-        setRdfDescriptionString(PDF_KEYWORDS, keywords);
+        setRdfDescriptionString(namespaces.pdf().qName("Keywords"), keywords);
     }
 
     /**
@@ -145,11 +138,11 @@ public class FoMetadataDom implements FoMetadata {
      */
     @Override
     public String getCreator() {
-        return getRdfDescriptionString(XMP_CREATOR_TOOL);
+        return getRdfDescriptionString(namespaces.xmp().qName("CreatorTool"));
     }
 
     public void setCreator(String creator) {
-        setRdfDescriptionString(XMP_CREATOR_TOOL, creator);
+        setRdfDescriptionString(namespaces.xmp().qName("CreatorTool"), creator);
     }
 
     /**
@@ -163,11 +156,11 @@ public class FoMetadataDom implements FoMetadata {
      */
     @Override
     public String getProducer() {
-        return getRdfDescriptionString(PDF_PRODUCER);
+        return getRdfDescriptionString(namespaces.pdf().qName("Producer"));
     }
 
     public void setProducer(String producer) {
-        setRdfDescriptionString(PDF_PRODUCER, producer);
+        setRdfDescriptionString(namespaces.pdf().qName("Producer"), producer);
     }
 
     // TODO creation and modification date
@@ -179,20 +172,20 @@ public class FoMetadataDom implements FoMetadata {
 
     @Override
     public ZonedDateTime getCreationDate() {
-        return getRdfDescriptionZonedDateTime(XMP_CREATE_DATE);
+        return getRdfDescriptionZonedDateTime(namespaces.xmp().qName("CreateDate"));
     }
 
     public void setCreationDate(ZonedDateTime creationDate) {
-        setRdfDescriptionZonedDateTime(XMP_CREATE_DATE, creationDate);
+        setRdfDescriptionZonedDateTime(namespaces.xmp().qName("CreateDate"), creationDate);
     }
 
     @Override
     public ZonedDateTime getModificationDate() {
-        return getRdfDescriptionZonedDateTime(XMP_MODIFY_DATE);
+        return getRdfDescriptionZonedDateTime(namespaces.xmp().qName("ModifyDate"));
     }
 
     public void setModificationDate(ZonedDateTime modificationDate) {
-        setRdfDescriptionZonedDateTime(XMP_MODIFY_DATE, modificationDate);
+        setRdfDescriptionZonedDateTime(namespaces.xmp().qName("ModifyDate"), modificationDate);
     }
 
     private String getRdfDescriptionString(QName qName) {
@@ -231,9 +224,9 @@ public class FoMetadataDom implements FoMetadata {
     private void ensureRdfDescription(boolean create) {
         if (create && (rdfDescription == null || !rdfDescription.isPresent())) {
             Element declarations = DomUtil.findOrCreateFoDeclarations(domDocument, createdElementCallback);
-            Element xmpmeta = DomUtil.findOrCreateChild(declarations, Namespace.X.qName("xmpmeta"), createdElementCallback);
-            Element rdf = DomUtil.findOrCreateChild(xmpmeta, Namespace.RDF.qName("RDF"), createdElementCallback);
-            rdfDescription = Optional.of(DomUtil.findOrCreateChild(rdf, Namespace.RDF.qName("Description"), createdElementCallback));
+            Element xmpmeta = DomUtil.findOrCreateChild(declarations, namespaces.x().qName("xmpmeta"), createdElementCallback);
+            Element rdf = DomUtil.findOrCreateChild(xmpmeta, namespaces.rdf().qName("RDF"), createdElementCallback);
+            rdfDescription = Optional.of(DomUtil.findOrCreateChild(rdf, namespaces.rdf().qName("Description"), createdElementCallback));
         }
         else if (!create && rdfDescription == null) {
             Element declarations = DomUtil.findFoDeclarationsNullable(domDocument);
@@ -242,19 +235,19 @@ public class FoMetadataDom implements FoMetadata {
                 return;
             }
 
-            Element xmpmeta = DomUtil.findChildNullable(declarations, Namespace.X.qName("xmpmeta"));
+            Element xmpmeta = DomUtil.findChildNullable(declarations, namespaces.x().qName("xmpmeta"));
             if (xmpmeta == null) {
                 rdfDescription = Optional.empty();
                 return;
             }
 
-            Element rdf = DomUtil.findChildNullable(xmpmeta, Namespace.RDF.qName("RDF"));
+            Element rdf = DomUtil.findChildNullable(xmpmeta, namespaces.rdf().qName("RDF"));
             if (rdf == null) {
                 rdfDescription = Optional.empty();
                 return;
             }
 
-            rdfDescription = Optional.of(DomUtil.findChildNullable(rdf, Namespace.RDF.qName("Description")));
+            rdfDescription = Optional.of(DomUtil.findChildNullable(rdf, namespaces.rdf().qName("Description")));
         }
     }
 
@@ -265,31 +258,31 @@ public class FoMetadataDom implements FoMetadata {
             return null;
         }
 
-        Element property = DomUtil.findChildNullable(foxInfo.get(), FOX_NAME, "key", key);
+        Element property = DomUtil.findChildNullable(foxInfo.get(), namespaces.fox().qName("name"), "key", key);
         return property == null ? null : property.getTextContent();
     }
 
     public void setCustomProperty(String key, String value) {
         ensureFoxInfo(true);
 
-        Element property = DomUtil.findOrCreateChild(foxInfo.get(), FOX_NAME, createdElementCallback, "key", key);
+        Element property = DomUtil.findOrCreateChild(foxInfo.get(), namespaces.fox().qName("name"), createdElementCallback, "key", key);
         property.setTextContent(value);
     }
 
     private void ensureFoxInfo(boolean create) {
         if (create && (foxInfo == null || !foxInfo.isPresent())) {
             Element root = (Element) domDocument.getFirstChild();
-            Element declarations = DomUtil.findOrCreateChild(root, Namespace.FO.qName("declarations"), createdElementCallback);
-            foxInfo = Optional.of(DomUtil.findOrCreateChild(declarations, Namespace.FOX.qName("info"), createdElementCallback));
+            Element declarations = DomUtil.findOrCreateChild(root, namespaces.fo().qName("declarations"), createdElementCallback);
+            foxInfo = Optional.of(DomUtil.findOrCreateChild(declarations, namespaces.fox().qName("info"), createdElementCallback));
         }
         else if (!create && foxInfo == null) {
             Element root = (Element) domDocument.getFirstChild();
-            Element declarations = DomUtil.findChildNullable(root, Namespace.FO.qName("declarations"));
+            Element declarations = DomUtil.findChildNullable(root, namespaces.fo().qName("declarations"));
             if (declarations == null) {
                 foxInfo = Optional.empty();
             }
             else {
-                foxInfo = Optional.ofNullable(DomUtil.findChildNullable(declarations, Namespace.FOX.qName("info")));
+                foxInfo = Optional.ofNullable(DomUtil.findChildNullable(declarations, namespaces.fox().qName("info")));
             }
         }
     }

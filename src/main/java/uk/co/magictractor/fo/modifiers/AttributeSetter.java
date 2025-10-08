@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
-import uk.co.magictractor.fo.Namespace;
+import uk.co.magictractor.fo.namespace.Namespace;
 
 /**
  * Sets attributes on an {@code Element}.

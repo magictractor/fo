@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import uk.co.magictractor.fo.Namespace;
+import uk.co.magictractor.fo.namespace.Namespace;
 
 /**
  *

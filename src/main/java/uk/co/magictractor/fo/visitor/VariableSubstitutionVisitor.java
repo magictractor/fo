@@ -25,47 +25,20 @@ import uk.co.magictractor.fo.FoDocument;
 
 public class VariableSubstitutionVisitor implements NodeVisitor {
 
-    // TODO! null or doc is pretty ugly, something more elegant should be possible
-    // revisit when looking at input and output of HTML entities
-    // https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
-    /*
-     * null for templates, substitutions should only be performed on docs when
-     * they are created
-     */
-    private final FoDocument document;
-
     private final String variableOpen;
     private final String variableClose;
 
     // Map to actions to allow more complex actions than just text substitution.
-    // One possiblity would be to allow a <fo:page-number> Element to be inserted.
+    // One possibility would be to allow a <fo:page-number> Element to be inserted.
     // private final Map<String, SubstitutionAction> substitutionActions;
-    private Map<String, Function<FoDocument, String>> replacementValueFunctions;
+    private Map<String, String> replacementValues = new HashMap<>();
 
-    public VariableSubstitutionVisitor(FoDocument document, VariableSubstitutionVisitor template) {
-        this.document = document;
-        this.variableOpen = template.variableOpen;
-        this.variableClose = template.variableClose;
-        this.replacementValueFunctions = new HashMap<>(template.replacementValueFunctions);
-    }
-
-    public VariableSubstitutionVisitor() {
-        this("${", "}");
-    }
-
-    public VariableSubstitutionVisitor(String variableOpen, String variableClose) {
-        //        if (variableOpen.isBlank() || variableClose.isBlank()) {
-        //            throw new IllegalArgumentException();
-        //        }
-
-        this.document = null;
+    public VariableSubstitutionVisitor(String variableOpen, String variableClose, FoDocument document, Map<String, Function<FoDocument, String>> variableSubstitutions) {
         this.variableOpen = variableOpen;
         this.variableClose = variableClose;
-        this.replacementValueFunctions = new HashMap<>();
-    }
-
-    public void add(String variableName, Function<FoDocument, String> replacementValueFunction) {
-        replacementValueFunctions.put(variableOpen + variableName + variableClose, replacementValueFunction);
+        for (Map.Entry<String, Function<FoDocument, String>> variableSubstitution : variableSubstitutions.entrySet()) {
+            replacementValues.put(variableOpen + variableSubstitution.getKey() + variableClose, variableSubstitution.getValue().apply(document));
+        }
     }
 
     @Override
@@ -90,19 +63,14 @@ public class VariableSubstitutionVisitor implements NodeVisitor {
 
         String variable = data.substring(beginIndex, endIndex + variableClose.length());
 
-        Function<FoDocument, String> replacementValueFunction = this.replacementValueFunctions.get(variable);
-        if (replacementValueFunction == null) {
-            throw new IllegalStateException("No replacement value defined for " + variable);
-        }
-        String replacement = replacementValueFunction.apply(document);
-
+        String replacementValue = this.replacementValues.get(variable);
         String oldData = text.getData();
 
         StringBuilder newDataBuilder = new StringBuilder();
         if (beginIndex > 0) {
             newDataBuilder.append(oldData.substring(0, beginIndex));
         }
-        newDataBuilder.append(replacement);
+        newDataBuilder.append(replacementValue);
         newDataBuilder.append(oldData.substring(endIndex + variableClose.length()));
 
         text.setData(newDataBuilder.toString());

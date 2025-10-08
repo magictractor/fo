@@ -16,9 +16,11 @@
 package uk.co.magictractor.fo.visitor;
 
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
@@ -61,12 +63,12 @@ public interface NodeVisitor {
      * Returns the visitor allowing code like:
      * </p>
      * <pre>
-     * result = DocumentNodeVisitor.traverse(bounds, visitor).bestMatch();
+     * result = NodeVisitor.traverse(bounds, visitor).bestMatch();
      * </pre>
      */
     public static <V extends NodeVisitor> V traverse(Node node, V visitor) {
         visitor.visitNode(node, 0);
-        // hmm, why return the visitor??
+        // Visitor returned, see example in Javadoc.
         return visitor;
     }
 
@@ -104,6 +106,13 @@ public interface NodeVisitor {
             return preStatus;
         }
 
+        if (element.hasAttributes()) {
+            NamedNodeMap attributes = element.getAttributes();
+            for (int i = 0; i < attributes.getLength(); i++) {
+                visitAttribute((Attr) attributes.item(i));
+            }
+        }
+
         NodeList childNodes = element.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node childNode = childNodes.item(i);
@@ -120,6 +129,10 @@ public interface NodeVisitor {
 
         // Done or Continue
         return postStatus;
+    }
+
+    default int visitAttribute(Attr attribute) {
+        return STATUS_CONTINUE;
     }
 
     default int visitText(Text text, int depth) {

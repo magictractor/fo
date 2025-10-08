@@ -16,9 +16,11 @@
 package uk.co.magictractor.fo;
 
 import java.util.Map;
+import java.util.function.Function;
 
+import uk.co.magictractor.fo.indent.FoIndent;
 import uk.co.magictractor.fo.modifiers.ElementModifier;
-import uk.co.magictractor.fo.visitor.VariableSubstitutionVisitor;
+import uk.co.magictractor.fo.namespace.Namespaces;
 
 /**
  *
@@ -29,14 +31,18 @@ public interface FoTemplate extends FoDocument {
 
     /**
      * <p>
-     * Visitor that is applied to the DOM when building a {@code FoDocument}
-     * from this template. Typically used to replace placeholders in the footer
-     * with values from metadata.
+     * Substitutions applied to the DOM when building a {@code FoDocument} from
+     * this template. Typically used to replace placeholders in the footer with
+     * values from metadata.
      * </p>
      * <p>
      * May be null.
      * </p>
      */
-    VariableSubstitutionVisitor getVariableSubstitutionVisitor();
+    Map<String, Function<FoDocument, String>> getVariableSubstitutions();
+
+    Namespaces getNamespaces();
+
+    FoIndent getIndent();
 
 }
