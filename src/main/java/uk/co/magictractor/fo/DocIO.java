@@ -35,7 +35,7 @@ public class DocIO {
 
     public DocIO(String fileNameBase) {
         // TODO! something more robust (optional environment variable?)
-        this(Paths.get(System.getProperty("user.dir"), "docs"), fileNameBase);
+        this(Paths.get(System.getProperty("user.dir"), "fodocs"), fileNameBase);
     }
 
     public DocIO(Path dir, String fileNameBase) {
