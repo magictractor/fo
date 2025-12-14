@@ -119,6 +119,9 @@ dependencies {
         exclude group: 'org.springframework', module: 'spring-beans'
     }
 
+    // For DifferenceAppender (optional).
+    compileOnly 'io.github.java-diff-utils:java-diff-utils:4.15'
+    
     testImplementation libs.junit.jupiter;
     testRuntimeOnly libs.junit.jupiter.platform;
     testImplementation libs.assertj;
