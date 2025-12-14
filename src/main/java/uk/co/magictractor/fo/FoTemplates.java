@@ -15,6 +15,8 @@
  */
 package uk.co.magictractor.fo;
 
+import uk.co.magictractor.fo.build.FoDocumentBuilder;
+
 /**
  *
  */

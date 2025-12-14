@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.magictractor.fo;
+package uk.co.magictractor.fo.build;
 
 import static uk.co.magictractor.fo.modifiers.ElementModifiers.attributeSetter;
 
@@ -33,6 +33,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
+import uk.co.magictractor.fo.DomUtil;
+import uk.co.magictractor.fo.FoDocument;
+import uk.co.magictractor.fo.FoMetadata;
+import uk.co.magictractor.fo.FoMetadataDom;
+import uk.co.magictractor.fo.FoTemplate;
 import uk.co.magictractor.fo.indent.FoIndent;
 import uk.co.magictractor.fo.modifiers.ElementModifier;
 import uk.co.magictractor.fo.namespace.CustomNamespaces;

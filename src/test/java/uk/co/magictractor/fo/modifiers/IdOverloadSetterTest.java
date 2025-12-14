@@ -18,8 +18,8 @@ package uk.co.magictractor.fo.modifiers;
 import org.junit.jupiter.api.Test;
 
 import uk.co.magictractor.fo.FoDocument;
-import uk.co.magictractor.fo.FoDocumentBuilder;
 import uk.co.magictractor.fo.FoTestTemplates;
+import uk.co.magictractor.fo.build.FoDocumentBuilder;
 import uk.co.magictractor.fo.handler.FoIntermediateFormatTransform;
 import uk.co.magictractor.fo.writer.FoWriterBuilder;
 

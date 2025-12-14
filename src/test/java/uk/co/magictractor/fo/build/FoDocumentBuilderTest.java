@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.magictractor.fo;
+package uk.co.magictractor.fo.build;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,6 +21,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.Test;
+
+import uk.co.magictractor.fo.FoDocument;
+import uk.co.magictractor.fo.FoTemplates;
 
 public class FoDocumentBuilderTest {
 

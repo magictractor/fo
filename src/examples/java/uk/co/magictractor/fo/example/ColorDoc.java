@@ -23,8 +23,8 @@ import org.apache.commons.logging.LogFactory;
 
 import uk.co.magictractor.fo.DocIO;
 import uk.co.magictractor.fo.FoDocument;
-import uk.co.magictractor.fo.FoDocumentBuilder;
 import uk.co.magictractor.fo.FoTemplates;
+import uk.co.magictractor.fo.build.FoDocumentBuilder;
 import uk.co.magictractor.fo.handler.FoAreaTreeTransform;
 import uk.co.magictractor.fo.handler.FoIntermediateFormatTransform;
 import uk.co.magictractor.fo.handler.FoPassthroughTransform;

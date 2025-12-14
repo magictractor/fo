@@ -26,8 +26,8 @@ import org.apache.commons.logging.LogFactory;
 
 import uk.co.magictractor.fo.DocIO;
 import uk.co.magictractor.fo.FoDocument;
-import uk.co.magictractor.fo.FoDocumentBuilder;
 import uk.co.magictractor.fo.FoTemplates;
+import uk.co.magictractor.fo.build.FoDocumentBuilder;
 import uk.co.magictractor.fo.handler.FoPassthroughTransform;
 import uk.co.magictractor.fo.handler.FoPdfTransform;
 import uk.co.magictractor.fo.modifiers.ElementModifier;
