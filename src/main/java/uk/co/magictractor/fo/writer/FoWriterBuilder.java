@@ -36,6 +36,7 @@ import org.apache.fop.render.Renderer;
 import org.apache.fop.render.intermediate.AbstractIFDocumentHandlerMaker;
 import org.apache.fop.render.intermediate.IFContext;
 import org.apache.fop.render.intermediate.IFDocumentHandler;
+import org.apache.fop.render.intermediate.IFDocumentHandlerConfigurator;
 import org.apache.fop.render.intermediate.IFException;
 import org.apache.fop.render.intermediate.IFRenderer;
 import org.xml.sax.ContentHandler;
@@ -183,6 +184,16 @@ public class FoWriterBuilder {
             if (handler instanceof AbstractIFDocumentHandlerMaker) {
                 AbstractIFDocumentHandlerMaker maker = (AbstractIFDocumentHandlerMaker) handler;
                 IFDocumentHandler documentHandler = maker.makeIFDocumentHandler(ifContext);
+
+                // See RendererFactory.createDocumentHandler()
+                // As documented there, a separate step to do the configuration is not ideal
+                // but it's required with FOP 2.11.
+                // TODO! could add a unit test to detect if this is no longer required
+                IFDocumentHandlerConfigurator configurator = documentHandler.getConfigurator();
+                if (configurator != null) {
+                    configurator.configure(documentHandler);
+                }
+
                 documentHandler.setResult(new StreamResult(out));
                 documentHandlers.add(documentHandler);
             }
