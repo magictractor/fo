@@ -25,6 +25,7 @@ import com.github.difflib.patch.AbstractDelta;
 import com.github.difflib.patch.Chunk;
 import com.github.difflib.patch.DeltaType;
 import com.github.difflib.patch.Patch;
+import com.google.common.base.MoreObjects;
 
 import uk.co.magictractor.fo.build.FoDocumentBuilder;
 import uk.co.magictractor.fo.modifiers.AttributeSetter;
@@ -67,19 +68,36 @@ public class DifferenceAppender {
                     appendChunk(docBuilder, delta.getSource());
                     break;
                 case CHANGE:
-                    appendChunk(docBuilder, delta.getSource(), styleDeleted);
-                    appendChunk(docBuilder, delta.getTarget(), styleInserted);
-                    break;
+                    // What might be expected to be CHANGEs are often (always?) INSERT followed by DELETE.
+                    // Could post-process and create a CHANGE?
+                    throw new IllegalStateException("Aah, CHANGE is used");
+                // appendChunk(docBuilder, delta.getSource(), styleDeleted);
+                // appendChunk(docBuilder, delta.getTarget(), styleInserted);
+                // break;
                 case DELETE:
+                    if (!delta.getTarget().getLines().isEmpty()) {
+                        throw new IllegalStateException();
+                    }
                     appendChunk(docBuilder, delta.getSource(), styleDeleted);
                     break;
                 case INSERT:
+                    if (!delta.getSource().getLines().isEmpty()) {
+                        throw new IllegalStateException();
+                    }
+
                     // If INSERT is followed immediately by DELETE then show the DELETE first
-                    if ((i + 1) < deltas.size() && DeltaType.DELETE.equals(deltas.get(i + 1).getType())) {
+                    // Unit test??
+                    if ((i + 1) < deltas.size()
+                            && DeltaType.DELETE.equals(deltas.get(i + 1).getType())
+                    /* && deltas.get(i + 1). */) {
+                        // WED - add Word.withoutPreamble() and always
+                        // TODO! but what if they have a different preamble??
                         appendChunk(docBuilder, deltas.get(i + 1).getSource(), styleDeleted);
                         if (delta.getTarget().getLines().get(0).preamble.isEmpty()) {
                             // Unusual case, has been seen in magic range with Rune Chanter.
-                            docBuilder.appendText(" ");
+                            //docBuilder.appendText(" ");
+                            // TODO! constant in a common file for NBSP and other common non-ASCII chars.
+                            docBuilder.appendText("\u00a0");
                         }
                         appendChunk(docBuilder, delta.getTarget(), styleInserted);
                         i++;
@@ -102,15 +120,19 @@ public class DifferenceAppender {
     }
 
     private void appendChunk(FoDocumentBuilder docBuilder, Chunk<Word> chunk, ElementModifier textModifier) {
-        boolean isInline = false;
+        appendChunk(docBuilder, chunk, textModifier, false);
+    }
+
+    private void appendChunk(FoDocumentBuilder docBuilder, Chunk<Word> chunk, ElementModifier textModifier, boolean highlightFirstPreamble) {
+        boolean highlightPreamble = highlightFirstPreamble;
 
         for (Word word : chunk.getLines()) {
-            if (!isInline) {
+            if (!highlightPreamble) {
                 docBuilder.appendText(word.preamble);
                 if (!word.text.isEmpty()) {
                     docBuilder.startInline(HIGHLIGHTER_PADDING, textModifier);
                     docBuilder.appendText(word.text);
-                    isInline = true;
+                    highlightPreamble = true;
                 }
             }
             else {
@@ -119,7 +141,7 @@ public class DifferenceAppender {
             }
         }
 
-        if (isInline) {
+        if (highlightPreamble) {
             docBuilder.endInline();
         }
     }
@@ -183,21 +205,35 @@ public class DifferenceAppender {
      * Determines characters which are to be retained in output but ignored for
      * diffs.
      */
-    private static boolean ignoreInDiff(char c) {
-        return c == ' ' || c == ',' || c == '.';
+    private boolean ignoreInDiff(char c) {
+        return c == ' ' || c == ',' || c == '.' || c == '\u00a0';
     }
 
-    private static boolean isSingleCharWord(char c) {
+    private boolean isSingleCharWord(char c) {
         return c == '-' || c == '[' || c == ']';
     }
 
     public static class Word {
         private final String preamble;
         private final String text;
+        // postamble is generally empty, but the preamble from the first Word in a change may
+        // be moved to the last postamble in an equals delta before it
+        private final String postamble;
 
         public Word(String preamble, String text) {
+            if (preamble == null) {
+                throw new IllegalArgumentException();
+            }
+            // text can be null, typically with a full stop at the end of text.
+            if (text == null) {
+                throw new IllegalArgumentException();
+            }
+            if (preamble.isEmpty() && text.isEmpty()) {
+                throw new IllegalArgumentException();
+            }
             this.preamble = preamble;
             this.text = text;
+            this.postamble = "";
         }
 
         public String getPreamble() {
@@ -215,6 +251,25 @@ public class DifferenceAppender {
             }
             Word other = (Word) obj;
             return this.text.equalsIgnoreCase(other.text);
+        }
+
+        @Override
+        public int hashCode() {
+            return text.toLowerCase().hashCode();
+        }
+
+        //        public Word withoutPreamble() {
+        //            return preamble.isEmpty() ? this : new Word("", text);
+        //        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this)
+                    .omitEmptyValues()
+                    .add("preamble", preamble)
+                    .add("text", text)
+                    .add("postamble", postamble)
+                    .toString();
         }
     }
 
