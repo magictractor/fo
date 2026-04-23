@@ -162,7 +162,7 @@ public class VersionInfo {
         Path dir = jarPath.getParent();
         if (!jarBaseName.endsWith(dir.getFileName().toString())) {
             // Tolerate one step between.
-            // Gradle repositories have a randomised jar between the version folder and the jar.
+            // Gradle repositories have a randomised folder name between the version folder and the jar.
             // Maven repositories do not.
             // C:\Users\Ken\.gradle\caches\modules-2\files-2.1\xml-apis\xml-apis-ext\1.3.04\41a8b86b358e87f3f13cf46069721719105aff66\xml-apis-ext-1.3.04.jar
             String skippedDir = dir.getFileName().toString();
